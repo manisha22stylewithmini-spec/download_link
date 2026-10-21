@@ -33,9 +33,13 @@ $('form').addEventListener('submit', async e => {
     $('detail').textContent = [data.source, data.uploader, fmtDuration(data.duration)].filter(Boolean).join(' · ');
     const q = $('quality');
     q.innerHTML = '';
-    q.add(new Option('Best quality', 'best'));
-    data.heights.forEach(h => q.add(new Option(h + 'p', String(h))));
-    q.add(new Option('Audio only (MP3)', 'audio'));
+    if (data.options) {
+      data.options.forEach((o, i) => q.add(new Option(o.label, String(i))));
+    } else {
+      q.add(new Option('Best quality', 'best'));
+      data.heights.forEach(h => q.add(new Option(h + 'p', String(h))));
+      q.add(new Option('Audio only (MP3)', 'audio'));
+    }
     $('result').hidden = false;
   } catch (err) {
     showError(err.message);
@@ -44,6 +48,25 @@ $('form').addEventListener('submit', async e => {
     $('go').textContent = '+';
   }
 });
+
+// Hosted mode: the server only resolves the media URL, the browser fetches the file itself.
+async function directDownload(opt, title) {
+  const name = (title || 'video').replace(/[^\w\- ]+/g, '').trim().slice(0, 80) || 'video';
+  try {
+    const r = await fetch(opt.url);
+    if (!r.ok) throw new Error('blocked');
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${name}.${opt.ext}`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch {
+    // The host doesn't allow in-page downloads; open the file so it can be saved from the browser.
+    window.open(opt.url, '_blank', 'noopener');
+    showError('Your browser opened the video in a new tab. Right-click it (or use the ⋮ menu) and choose "Save video as".');
+  }
+}
 
 $('dl').addEventListener('click', async e => {
   e.preventDefault();
@@ -54,6 +77,10 @@ $('dl').addEventListener('click', async e => {
   $('note').hidden = false;
   showError('');
   try {
+    if (current.options) {
+      await directDownload(current.options[Number($('quality').value)], current.title);
+      return;
+    }
     const qs = new URLSearchParams({ url: current.url, quality: $('quality').value, title: current.title });
     const r = await fetch('/api/download?' + qs);
     if (!r.ok) throw new Error((await r.json()).error || 'Download failed.');

@@ -1,0 +1,3 @@
+{
+  "functions": { "api/info.py": { "maxDuration": 30 } }
+}
