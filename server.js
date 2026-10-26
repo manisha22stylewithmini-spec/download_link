@@ -80,6 +80,41 @@ async function handleInfo(req, res, url) {
   }
 }
 
+// Keyword search. YouTube is searchable with yt-dlp; the other platforms only allow search on their own site,
+// so for those we hand back a link to their search page.
+const EXTERNAL = {
+  instagram: ['Instagram', 'https://www.instagram.com/explore/search/keyword/?q={q}'],
+  tiktok: ['TikTok', 'https://www.tiktok.com/search/video?q={q}'],
+  pinterest: ['Pinterest', 'https://www.pinterest.com/search/videos/?q={q}'],
+  x: ['X', 'https://x.com/search?q={q}%20filter%3Avideos&f=live'],
+  dribbble: ['Dribbble', 'https://dribbble.com/search/{q}'],
+  facebook: ['Facebook', 'https://www.facebook.com/search/videos/?q={q}'],
+};
+const searchLinks = (q, only) => Object.entries(EXTERNAL)
+  .filter(([k]) => !only || k === only)
+  .map(([key, [platform, tpl]]) => ({ platform, key, url: tpl.replace('{q}', encodeURIComponent(q)) }));
+
+async function handleSearch(req, res, params) {
+  const q = (params.get('q') || '').trim().slice(0, 80);
+  const platform = (params.get('platform') || 'all').toLowerCase();
+  if (!q) return json(res, 400, { error: 'Type something to search for.' });
+  if (EXTERNAL[platform]) return json(res, 200, { q, platform, items: [], external: searchLinks(q, platform) });
+  let items = [];
+  try {
+    const info = JSON.parse(await run(['--flat-playlist', '-J', '--no-warnings', `ytsearch12:${q}`], { timeout: 40000 }));
+    items = (info.entries || []).filter(e => e.id).map(e => ({
+      title: e.title || 'Video',
+      url: /^https?:/.test(e.url || '') ? e.url : `https://www.youtube.com/watch?v=${e.id}`,
+      thumbnail: `https://i.ytimg.com/vi/${e.id}/hqdefault.jpg`,
+      channel: e.channel || e.uploader || '',
+      duration: e.duration || null,
+      platform: 'YouTube',
+    }));
+  } catch {}
+  if (!items.length && platform === 'youtube') return json(res, 502, { error: 'Search is busy right now. Try again in a moment.' });
+  json(res, 200, { q, platform, items, external: platform === 'all' ? searchLinks(q) : [] });
+}
+
 async function handleDownload(req, res, params) {
   const url = params.get('url') || '';
   const quality = params.get('quality') || 'best';
@@ -126,10 +161,11 @@ http.createServer((req, res) => {
   const u = new URL(req.url, `http://${req.headers.host}`);
   if (u.pathname === '/api/info') return handleInfo(req, res, u.searchParams.get('url') || '');
   if (u.pathname === '/api/download') return handleDownload(req, res, u.searchParams);
+  if (u.pathname === '/api/search') return handleSearch(req, res, u.searchParams);
 
   const rel = u.pathname === '/' ? 'index.html' : u.pathname.slice(1);
   const file = path.join(PUBLIC, rel);
   if (!file.startsWith(PUBLIC + path.sep) || !fs.existsSync(file)) { res.writeHead(404); return res.end('Not found'); }
-  res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
+  res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
   fs.createReadStream(file).pipe(res);
 }).listen(PORT, HOST, () => console.log(`Video downloader running at http://${HOST}:${PORT}`));

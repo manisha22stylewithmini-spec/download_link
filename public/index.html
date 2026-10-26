@@ -46,76 +46,228 @@
   </div>
 </aside>
 
-<div class="phone">
+<div class="phone" id="app">
   <div class="phone-inner">
     <header class="top">
-      <button class="icon-btn" id="theme" type="button" aria-label="Switch to dark theme">
-        <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
-        <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
-      </button>
-      <button class="install" id="install" type="button" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
-        Install app
-      </button>
-      <button class="icon-btn" id="clear" type="button" aria-label="Clear link">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      </button>
+      <div class="brand"><img src="/icons/icon-192.png" alt="" width="32" height="32"><span>Grab</span></div>
+      <div class="top-actions">
+        <button class="install" id="install" type="button" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
+          Install app
+        </button>
+        <button class="icon-btn" id="theme" type="button" aria-label="Switch to dark theme">
+          <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
+          <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
+        </button>
+      </div>
     </header>
 
-    <h1>Paste now.<br><span class="grad">Grab anytime.</span></h1>
-    <p class="sub">Drop a link from Pinterest, Instagram, X &amp; more and get the video in seconds.</p>
+    <!-- ================= HOME ================= -->
+    <section class="view" id="view-home" aria-labelledby="tab-home">
+      <h1>Paste now.<br><span class="grad">Grab anytime.</span></h1>
+      <p class="sub">Drop a link from Pinterest, Instagram, X &amp; more and get the video in seconds.</p>
 
-    <form id="form">
-      <label class="field">
-        <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
-        <input id="url" type="url" placeholder="Paste a link" required autocomplete="off" aria-label="Video link">
-        <button id="paste" class="paste" type="button" aria-label="Paste from clipboard">
-          <svg viewBox="0 0 24 24"><rect x="8" y="3" width="12" height="14" rx="2"/><path d="M16 21H6a2 2 0 0 1-2-2V8"/></svg>
-        </button>
-      </label>
-      <button id="go" class="plus" type="submit" aria-label="Fetch video">→</button>
-    </form>
+      <form id="form">
+        <label class="field">
+          <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+          <input id="url" type="url" placeholder="Paste a link" required autocomplete="off" aria-label="Video link">
+          <button id="paste" class="paste" type="button" aria-label="Paste from clipboard">
+            <svg viewBox="0 0 24 24"><rect x="8" y="3" width="12" height="14" rx="2"/><path d="M16 21H6a2 2 0 0 1-2-2V8"/></svg>
+          </button>
+        </label>
+        <button id="go" class="plus" type="submit" aria-label="Fetch video">→</button>
+      </form>
 
-    <p id="error" role="alert" hidden></p>
+      <p id="error" role="alert" hidden></p>
 
-    <section id="result" class="result" hidden>
-      <div class="result-media"><img id="thumb" alt=""></div>
-      <div class="result-body">
-        <p id="detail"></p>
-        <h3 id="title"></h3>
-        <div class="row">
-          <div class="dd" id="dd">
-            <select id="quality" aria-label="Quality" hidden></select>
-            <button type="button" class="dd-btn" id="ddBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Quality"><span id="ddLabel"></span></button>
-            <ul class="dd-list" id="ddList" role="listbox" aria-label="Quality" tabindex="-1" hidden></ul>
+      <section id="result" class="result" hidden>
+        <div class="result-media"><img id="thumb" alt=""></div>
+        <div class="result-body">
+          <p id="detail"></p>
+          <h3 id="title"></h3>
+          <div class="row">
+            <div class="dd" id="dd">
+              <select id="quality" aria-label="Quality" hidden></select>
+              <button type="button" class="dd-btn" id="ddBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Quality"><span id="ddLabel"></span></button>
+              <ul class="dd-list" id="ddList" role="listbox" aria-label="Quality" tabindex="-1" hidden></ul>
+            </div>
+            <a id="dl" class="btn" href="#">Download</a>
           </div>
-          <a id="dl" class="btn" href="#">Download</a>
+          <p id="note" hidden>Preparing your file… this can take a while for long videos.</p>
         </div>
-        <p id="note" hidden>Preparing your file… this can take a while for long videos.</p>
+      </section>
+
+      <h2 class="section" id="searchHead">Find videos</h2>
+      <form id="searchForm" class="search" role="search" aria-labelledby="searchHead">
+        <div class="chips scroll" id="platformChips" role="radiogroup" aria-label="Platform"></div>
+        <div class="search-row">
+          <label class="field">
+            <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input id="q" type="search" placeholder="Try “reel transitions”" autocomplete="off" aria-label="Search keyword" maxlength="80">
+          </label>
+          <button class="plus" id="searchGo" type="submit" aria-label="Search">→</button>
+        </div>
+      </form>
+      <div id="searchOut" aria-live="polite"></div>
+
+      <div class="section-row">
+        <h2 class="section">For you</h2>
+        <button class="link-btn" id="refreshFy" type="button">Refresh</button>
       </div>
+      <p class="hint" id="fyHint"></p>
+      <div class="chips wrap" id="topics" aria-label="Trending topics"></div>
+      <div class="cards" id="forYou" aria-live="polite"></div>
+
+      <section id="installHelp" class="help" hidden>
+        <h2 class="section">Add to your device</h2>
+        <ol id="installSteps"></ol>
+        <p class="hint">After installing, <b>Grab</b> shows up in the Share menu of other apps (Android and Windows/ChromeOS Chrome). Share a video link to it and it downloads right away.</p>
+      </section>
+
+      <p class="legal">Only download content you own or have permission to save. Private videos can't be downloaded.</p>
     </section>
 
-    <h2 class="section" id="sources">Works with</h2>
-    <div class="bento">
-      <div class="tile"><img src="/logos/pinterest.png" alt="" width="256" height="256"><b>Pinterest</b><span>pins</span></div>
-      <div class="tile"><img src="/logos/dribbble.png" alt="" width="256" height="256"><b>Dribbble</b><span>shots</span></div>
-      <div class="tile"><img src="/logos/x.png" alt="" width="256" height="256"><b>X</b><span>posts</span></div>
-      <div class="tile"><img src="/logos/instagram.png" alt="" width="256" height="256"><b>Instagram</b><span>reels</span></div>
-      <div class="tile wide">
-        <div class="stack"><img src="/logos/tiktok.png" alt=""><img src="/logos/youtube.png" alt=""><img src="/logos/facebook.png" alt=""><img src="/logos/snapchat.png" alt=""></div>
-        <b>TikTok, YouTube, Facebook &amp; more</b>
+    <!-- ================= HISTORY ================= -->
+    <section class="view" id="view-history" aria-labelledby="tab-history" hidden>
+      <h1 class="view-title">History</h1>
+      <p class="sub">Everything you've grabbed, saved only on this device.</p>
+      <div class="chips scroll" id="historyFilter" role="radiogroup" aria-label="Filter by platform"></div>
+      <ul class="hist" id="historyList"></ul>
+      <div class="empty" id="historyEmpty" hidden>
+        <img src="/icons/icon-192.png" alt="" width="56" height="56">
+        <b>Nothing here yet</b>
+        <span>Videos you download will show up here, grouped by platform.</span>
+        <button class="btn" type="button" data-goto="home">Grab a video</button>
       </div>
-    </div>
-
-    <section id="installHelp" class="help" hidden>
-      <h2 class="section">Add to your device</h2>
-      <ol id="installSteps"></ol>
-      <p class="hint">After installing, <b>Grab Video</b> shows up in the Share menu of other apps (Android and Windows/ChromeOS Chrome). Share a video link to it and it downloads right away.</p>
+      <button class="danger-btn" id="clearHistory" type="button" hidden>Clear history</button>
     </section>
 
-    <p class="legal">Only download content you own or have permission to save. Private videos can't be downloaded.</p>
+    <!-- ================= SETTINGS ================= -->
+    <section class="view" id="view-settings" aria-labelledby="tab-settings" hidden>
+      <h1 class="view-title">Settings</h1>
+
+      <h2 class="section">Downloads</h2>
+      <div class="group">
+        <div class="set-row col">
+          <div><b>Default quality</b><span>Picked automatically for every video.</span></div>
+          <div class="seg" role="radiogroup" aria-label="Default quality" data-key="quality">
+            <button type="button" role="radio" data-v="best">Best</button>
+            <button type="button" role="radio" data-v="low">Data saver</button>
+            <button type="button" role="radio" data-v="audio">Audio only</button>
+          </div>
+        </div>
+        <label class="set-row">
+          <div><b>Auto-download shared links</b><span>Start saving as soon as you share a link to Grab.</span></div>
+          <span class="switch"><input type="checkbox" role="switch" id="setAuto"><i></i></span>
+        </label>
+      </div>
+
+      <h2 class="section">Appearance</h2>
+      <div class="group">
+        <div class="set-row col">
+          <div><b>Theme</b><span>System follows your device.</span></div>
+          <div class="seg" role="radiogroup" aria-label="Theme" data-key="theme">
+            <button type="button" role="radio" data-v="system">System</button>
+            <button type="button" role="radio" data-v="light">Light</button>
+            <button type="button" role="radio" data-v="dark">Dark</button>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section">Your data</h2>
+      <div class="group">
+        <button class="set-row action" type="button" id="clearHistory2"><div><b>Clear download history</b><span>Removes the list, not your saved files.</span></div><span class="chev">›</span></button>
+        <button class="set-row action" type="button" id="clearInterests"><div><b>Reset suggestions</b><span>Forget searches and interests used for “For you”.</span></div><span class="chev">›</span></button>
+        <button class="set-row action" type="button" data-goto="alerts"><div><b>Privacy &amp; notifications</b><span>Personalization, alerts and the privacy policy.</span></div><span class="chev">›</span></button>
+      </div>
+
+      <h2 class="section">Works with</h2>
+      <div class="bento">
+        <div class="tile"><img src="/logos/pinterest.png" alt="" width="256" height="256"><b>Pinterest</b><span>pins</span></div>
+        <div class="tile"><img src="/logos/dribbble.png" alt="" width="256" height="256"><b>Dribbble</b><span>shots</span></div>
+        <div class="tile"><img src="/logos/x.png" alt="" width="256" height="256"><b>X</b><span>posts</span></div>
+        <div class="tile"><img src="/logos/instagram.png" alt="" width="256" height="256"><b>Instagram</b><span>reels</span></div>
+        <div class="tile wide">
+          <div class="stack"><img src="/logos/tiktok.png" alt=""><img src="/logos/youtube.png" alt=""><img src="/logos/facebook.png" alt=""><img src="/logos/snapchat.png" alt=""></div>
+          <b>TikTok, YouTube, Facebook &amp; more</b>
+        </div>
+      </div>
+      <p class="legal">Grab · version 1.1</p>
+    </section>
+
+    <!-- ================= ALERTS ================= -->
+    <section class="view" id="view-alerts" aria-labelledby="tab-alerts" hidden>
+      <h1 class="view-title">Alerts</h1>
+      <p class="sub">Suggestions picked from what you search and download.</p>
+
+      <div class="group">
+        <label class="set-row">
+          <div><b>Personalized suggestions</b><span>Learn your niche from your searches and downloads, on this device.</span></div>
+          <span class="switch"><input type="checkbox" role="switch" id="setPersonal"><i></i></span>
+        </label>
+        <label class="set-row">
+          <div><b>Notifications</b><span id="notifyNote">Get a ping when there are fresh picks for your niche.</span></div>
+          <span class="switch"><input type="checkbox" role="switch" id="setNotify"><i></i></span>
+        </label>
+        <button class="set-row action" type="button" id="testNotify" hidden><div><b>Send a test notification</b><span>Check that alerts reach this device.</span></div><span class="chev">›</span></button>
+        <button class="set-row action" type="button" id="openPolicy"><div><b>Privacy policy</b><span id="consentNote">Read what we store and why.</span></div><span class="chev">›</span></button>
+      </div>
+
+      <h2 class="section">Your interests</h2>
+      <p class="hint">Picked from your activity. Remove anything that isn't you, or add your own.</p>
+      <div class="chips wrap" id="interestList"></div>
+      <form class="search-row slim" id="interestForm">
+        <label class="field"><input id="interestInput" placeholder="Add a topic, e.g. motion design" maxlength="40" aria-label="Add an interest"></label>
+        <button class="plus small" type="submit" aria-label="Add interest">+</button>
+      </form>
+
+      <div class="section-row">
+        <h2 class="section">Inbox</h2>
+        <button class="link-btn" id="markRead" type="button">Mark all read</button>
+      </div>
+      <ul class="inbox" id="inbox"></ul>
+      <p class="hint" id="inboxEmpty">No alerts yet. Turn on personalized suggestions and we'll drop picks here.</p>
+    </section>
+
+    <!-- ================= TAB BAR ================= -->
+    <nav class="tabbar" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-home" data-tab="home" aria-controls="view-home">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><span>Home</span>
+      </button>
+      <button role="tab" id="tab-history" data-tab="history" aria-controls="view-history">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg><span>History</span>
+      </button>
+      <button role="tab" id="tab-settings" data-tab="settings" aria-controls="view-settings">
+        <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Settings</span>
+      </button>
+      <button role="tab" id="tab-alerts" data-tab="alerts" aria-controls="view-alerts">
+        <svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span>Alerts</span><i class="badge" id="alertBadge" hidden></i>
+      </button>
+    </nav>
   </div>
 </div>
+
+<dialog class="sheet" id="privacy" aria-labelledby="privacyTitle">
+  <form method="dialog" class="sheet-inner">
+    <span class="grabber" aria-hidden="true"></span>
+    <h2 id="privacyTitle">Your data, your call</h2>
+    <p class="sub">Grab works without an account. Here's exactly what happens with your info.</p>
+    <ul class="policy">
+      <li><b>Stays on this device</b>Your download history, searches and settings live in this browser's storage. We don't keep a copy.</li>
+      <li><b>Sent to fetch videos</b>Links and search words you enter go to our server only to find the video or results. Our host (Vercel) may keep standard request logs for a short time.</li>
+      <li><b>Personalized picks (optional)</b>If you allow it, Grab looks at your searches and downloads on this device to suggest topics in your niche.</li>
+      <li><b>Notifications (optional)</b>Only after you switch them on. Turn them off any time in Alerts or your browser settings.</li>
+      <li><b>You're in control</b>Clear history and interests in Settings. Removing the app or clearing site data deletes everything.</li>
+      <li><b>Respect creators</b>Only download videos you own or have permission to save.</li>
+    </ul>
+    <p class="hint">Policy version 1 · October 2026</p>
+    <div class="sheet-actions">
+      <button class="btn" value="accept" id="consentAccept">Accept &amp; personalize</button>
+      <button class="ghost-btn" value="essential" id="consentEssential">Essentials only</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="app.js"></script>
 </body>
 </html>
