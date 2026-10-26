@@ -138,21 +138,17 @@
 
       <div class="web-only">
         <h2 class="section">Works with</h2>
-        <div class="bento">
-          <div class="tile"><img src="/logos/pinterest.png" alt="" width="256" height="256"><b>Pinterest</b><span>pins</span></div>
-          <div class="tile"><img src="/logos/dribbble.png" alt="" width="256" height="256"><b>Dribbble</b><span>shots</span></div>
-          <div class="tile"><img src="/logos/x.png" alt="" width="256" height="256"><b>X</b><span>posts</span></div>
-          <div class="tile"><img src="/logos/instagram.png" alt="" width="256" height="256"><b>Instagram</b><span>reels</span></div>
-          <div class="tile wide">
-            <div class="stack"><img src="/logos/tiktok.png" alt=""><img src="/logos/youtube.png" alt=""><img src="/logos/facebook.png" alt=""><img src="/logos/snapchat.png" alt=""></div>
-            <b>TikTok, YouTube, Facebook &amp; more</b>
-          </div>
-        </div>
+        <button type="button" class="tile wide platforms" id="platBtn" aria-expanded="false" aria-controls="allPlatforms">
+          <span class="stack"><img src="/logos/pinterest.png" alt=""><img src="/logos/instagram.png" alt=""><img src="/logos/x.png" alt=""><img src="/logos/tiktok.png" alt=""><img src="/logos/youtube.png" alt=""></span>
+          <b>Pinterest, Instagram, X, TikTok &amp; more</b>
+          <svg class="plat-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <ul class="plat-grid" id="allPlatforms" hidden></ul>
 
         <div class="get-app">
-          <img src="/icons/icon-192.png" alt="" width="52" height="52">
-          <div><b>Get the full Grab app</b><span>Search videos, keep your download history, get picks for your niche, and share links straight from Instagram, TikTok &amp; more.</span></div>
-          <button class="btn" id="installCta" type="button">Download app</button>
+          <img src="/icons/icon-192.png" alt="" width="44" height="44">
+          <div><b>Get the full Grab app</b><span>Search, history &amp; share-to-download</span></div>
+          <button class="btn" id="installCta" type="button">Get app</button>
         </div>
       </div>
 

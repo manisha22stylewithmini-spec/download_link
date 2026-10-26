@@ -436,7 +436,8 @@ function ddOpen() {
   dd.open = true;
   ddBtn.setAttribute('aria-expanded', 'true');
   const r = ddBtn.getBoundingClientRect();
-  $('dd').classList.toggle('up', innerHeight - r.bottom < ddList.offsetHeight + 24 && r.top > ddList.offsetHeight + 24);
+  const box = $('app').getBoundingClientRect(), limit = Math.min(innerHeight, box.bottom);
+  $('dd').classList.toggle('up', limit - r.bottom < ddList.offsetHeight + 24 && r.top - Math.max(0, box.top) > ddList.offsetHeight + 24);
   ddActive(sel.selectedIndex);
   ddList.focus({ preventScroll: true });
 }
@@ -647,6 +648,17 @@ async function install() {
 $('install').addEventListener('click', install);
 $('installCta').addEventListener('click', install);
 
+/* ---------- website: tap "& more" to see every supported platform ---------- */
+(function platformList() {
+  const keys = ['pinterest', 'instagram', 'x', 'tiktok', 'youtube', 'facebook', 'dribbble', 'snapchat', 'linkedin'];
+  $('allPlatforms').innerHTML = keys.map(k => `<li><img src="/logos/${PLATFORMS[k][1]}.png" alt="" width="36" height="36"><span>${platformLabel(k)}</span></li>`).join('');
+  $('platBtn').addEventListener('click', () => {
+    const open = $('allPlatforms').hidden;
+    $('allPlatforms').hidden = !open;
+    $('platBtn').setAttribute('aria-expanded', String(open));
+  });
+})();
+
 /* ---------- website header + footer (details live in site-config.js) ---------- */
 (function siteChrome() {
   const S = window.SITE || {};
@@ -721,7 +733,11 @@ $('installCta').addEventListener('click', install);
   if (!scene || !lamps.length) return;
 
   // scale the fixed 420x700 drawing to the window
-  const fit = () => scene.style.setProperty('--s', Math.min(1, (innerHeight - 80) / 700).toFixed(3));
+  const fit = () => {
+    const web = document.documentElement.classList.contains('is-web');
+    const chrome = web ? (document.querySelector('.site-head')?.offsetHeight || 0) + (document.querySelector('.site-foot')?.offsetHeight || 0) + 72 : 80;
+    scene.style.setProperty('--s', Math.max(.55, Math.min(1, (innerHeight - chrome) / 700)).toFixed(3));
+  };
   addEventListener('resize', fit);
   fit();
 
