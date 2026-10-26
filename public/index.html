@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ffd21f">
+<meta name="theme-color" content="#1b1033">
 <meta name="description" content="Paste or share a link from Pinterest, Dribbble, X, Instagram and more to download the video.">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
@@ -15,54 +15,34 @@
 <script>try{var t=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="/media/bg.jpg" aria-hidden="true">
   <source src="/media/bg.mp4" type="video/mp4">
 </video>
-<div class="bg-tint" aria-hidden="true"></div>
+<div class="bg-scrim" aria-hidden="true"></div>
+<div class="bg-grain" aria-hidden="true"></div>
 
 <aside class="scene" id="scene" aria-label="Supported sites">
   <p class="sr-only">Works with Pinterest, Dribbble, X, Instagram, TikTok, YouTube, Facebook, LinkedIn, Snapchat and WhatsApp links.</p>
   <div class="tl3" aria-hidden="true">
-    <svg class="arms" viewBox="0 0 440 760">
-      <path class="wire" d="M220 118 L418 520 M220 118 L58 600"/>
-      <path class="arm-under" d="M232 582 C300 568 360 540 418 524 M208 606 L58 606"/>
-      <path class="arm" d="M232 578 C300 564 360 536 418 520 M208 602 L58 602"/>
-    </svg>
-
-    <div class="sticker ring r1">pins</div>
-    <div class="sticker ring r2">reels</div>
-    <div class="sticker px cyan c1">DOWN<b>■</b></div>
-    <div class="sticker px cyan c2"><b>■</b>LOAD</div>
-    <div class="sticker tiny t1">( any link )</div>
-
+    <div class="halo"></div>
     <div class="pole"></div>
-
-    <div class="sign"><span class="px">GRAB</span><span class="px">IT</span><i></i></div>
-
-    <div class="panel pl"><svg id="pxFlower" class="pixel"></svg></div>
-    <div class="panel pr"><svg id="pxArrow" class="pixel"></svg></div>
-    <i class="bracket bl"></i><i class="bracket br"></i>
-
+    <div class="sign">GRAB <b>IT</b></div>
     <div class="housing" id="tlBox">
       <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
       <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
       <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
     </div>
-
-    <div class="mini mr"><i></i><i></i><i></i></div>
-    <div class="mini ml"><i></i><i></i><i></i></div>
-
-    <div class="plates"><span class="plate" id="tlName">Pinterest</span><span class="plate">ALL LINKS</span></div>
-
-    <div class="tag">
-      <span class="lime big">SAVE IT</span>
-      <span class="small">no cap ✦ all links</span>
-      <span class="joy">tap, share, saved <b>→</b></span>
-    </div>
+    <div class="plate"><i class="live"></i><span class="plate-k">now grabbing</span><span id="tlName">Pinterest</span></div>
+    <div class="base"></div>
+    <span class="chip f1"><i style="--c:#ff5fae"></i>pins</span>
+    <span class="chip f2"><i style="--c:#d6ff3d"></i>reels</span>
+    <span class="chip f3"><i style="--c:#8b6bff"></i>shots</span>
+    <span class="chip f4"><i style="--c:#47d4ff"></i>posts</span>
+    <span class="chip f5"><i style="--c:#ffb547"></i>shorts</span>
   </div>
 </aside>
 
@@ -82,48 +62,49 @@
       </button>
     </header>
 
-    <h1>Paste now.<br>Grab anytime.</h1>
+    <h1>Paste now.<br><span class="grad">Grab anytime.</span></h1>
+    <p class="sub">Drop a link from Pinterest, Instagram, X &amp; more and get the video in seconds.</p>
 
     <form id="form">
       <label class="field">
-        <span class="hash" aria-hidden="true">#</span>
-        <input id="url" type="url" placeholder="Paste link to save" required autocomplete="off" aria-label="Video link">
+        <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+        <input id="url" type="url" placeholder="Paste a link" required autocomplete="off" aria-label="Video link">
         <button id="paste" class="paste" type="button" aria-label="Paste from clipboard">
           <svg viewBox="0 0 24 24"><rect x="8" y="3" width="12" height="14" rx="2"/><path d="M16 21H6a2 2 0 0 1-2-2V8"/></svg>
         </button>
       </label>
-      <button id="go" class="plus" type="submit" aria-label="Fetch video">+</button>
+      <button id="go" class="plus" type="submit" aria-label="Fetch video">→</button>
     </form>
 
     <p id="error" role="alert" hidden></p>
 
-    <section id="result" hidden>
-      <h2 class="section">Ready to grab</h2>
-      <div class="folder green">
-        <div class="tab"></div>
-        <div class="card">
-          <img id="thumb" alt="">
-          <p id="detail"></p>
-          <h3 id="title"></h3>
-          <div class="row">
-            <div class="dd" id="dd">
-              <select id="quality" aria-label="Quality" hidden></select>
-              <button type="button" class="dd-btn" id="ddBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Quality"><span id="ddLabel"></span></button>
-              <ul class="dd-list" id="ddList" role="listbox" aria-label="Quality" tabindex="-1" hidden></ul>
-            </div>
-            <a id="dl" class="btn" href="#">Download</a>
+    <section id="result" class="result" hidden>
+      <div class="result-media"><img id="thumb" alt=""></div>
+      <div class="result-body">
+        <p id="detail"></p>
+        <h3 id="title"></h3>
+        <div class="row">
+          <div class="dd" id="dd">
+            <select id="quality" aria-label="Quality" hidden></select>
+            <button type="button" class="dd-btn" id="ddBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Quality"><span id="ddLabel"></span></button>
+            <ul class="dd-list" id="ddList" role="listbox" aria-label="Quality" tabindex="-1" hidden></ul>
           </div>
-          <p id="note" hidden>Preparing your file… this can take a while for long videos.</p>
+          <a id="dl" class="btn" href="#">Download</a>
         </div>
+        <p id="note" hidden>Preparing your file… this can take a while for long videos.</p>
       </div>
     </section>
 
     <h2 class="section" id="sources">Works with</h2>
-    <div class="grid">
-      <div class="folder pink-f"><div class="tab"></div><div class="card small"><span class="badge">P</span><span class="count">pins</span><b>Pinterest</b></div></div>
-      <div class="folder blue"><div class="tab"></div><div class="card small"><span class="badge">D</span><span class="count">shots</span><b>Dribbble</b></div></div>
-      <div class="folder gray"><div class="tab"></div><div class="card small"><span class="badge">X</span><span class="count">posts</span><b>X / Twitter</b></div></div>
-      <div class="folder lime"><div class="tab"></div><div class="card small"><span class="badge">IG</span><span class="count">reels</span><b>Instagram</b></div></div>
+    <div class="bento">
+      <div class="tile"><img src="/logos/pinterest.png" alt="" width="256" height="256"><b>Pinterest</b><span>pins</span></div>
+      <div class="tile"><img src="/logos/dribbble.png" alt="" width="256" height="256"><b>Dribbble</b><span>shots</span></div>
+      <div class="tile"><img src="/logos/x.png" alt="" width="256" height="256"><b>X</b><span>posts</span></div>
+      <div class="tile"><img src="/logos/instagram.png" alt="" width="256" height="256"><b>Instagram</b><span>reels</span></div>
+      <div class="tile wide">
+        <div class="stack"><img src="/logos/tiktok.png" alt=""><img src="/logos/youtube.png" alt=""><img src="/logos/facebook.png" alt=""><img src="/logos/snapchat.png" alt=""></div>
+        <b>TikTok, YouTube, Facebook &amp; more</b>
+      </div>
     </div>
 
     <section id="installHelp" class="help" hidden>

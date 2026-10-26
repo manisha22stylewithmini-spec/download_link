@@ -50,7 +50,7 @@ async function lookup(url) {
     return false;
   } finally {
     $('go').disabled = false;
-    $('go').textContent = '+';
+    $('go').textContent = '→';
   }
 }
 
@@ -250,50 +250,10 @@ $('install').addEventListener('click', async () => {
   const lamps = [...document.querySelectorAll('#tlBox .lamp3')];
   if (!scene || !lamps.length) return;
 
-  // scale the fixed 440x760 drawing to the window
-  const fit = () => scene.style.setProperty('--s', Math.min(1, (innerHeight - 80) / 760).toFixed(3));
+  // scale the fixed 420x700 drawing to the window
+  const fit = () => scene.style.setProperty('--s', Math.min(1, (innerHeight - 80) / 700).toFixed(3));
   addEventListener('resize', fit);
   fit();
-
-  // original pixel art for the yellow sign panels
-  const PAL = { r: '#ff5d8f', o: '#ffb000', k: '#1b1b1b', p: '#ff8fb8', g: '#47c23a', G: '#2a8a2a', w: '#ffffff' };
-  const pixel = (id, rows) => {
-    const svg = $(id), h = rows.length, w = rows[0].length;
-    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    svg.innerHTML = rows.flatMap((row, y) => [...row].map((ch, x) => (PAL[ch] ? `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${PAL[ch]}"/>` : ''))).join('');
-  };
-  pixel('pxFlower', [
-    '....rrrrrr....',
-    '..rrrrrrrrrr..',
-    '.rrroooooorrr.',
-    '.rroooooooorr.',
-    'rrookooookoorr',
-    'rrookooookoorr',
-    'rropooooooporr',
-    'rrooookkooooor',
-    '.rroooooooorr.',
-    '.rrroooooorrr.',
-    '..rrrrrrrrrr..',
-    '....rrgrrr....',
-    '.gg...g...gg..',
-    '.ggg..g..ggg..',
-    '..GGG.g.GGG...',
-    '......G.......',
-  ]);
-  pixel('pxArrow', [
-    '....kkkk....',
-    '....kppk....',
-    '....kppk....',
-    '....kppk....',
-    '.kkkkppkkkk.',
-    '..kppppppk..',
-    '...kppppk...',
-    '....kppk....',
-    '.....kk.....',
-    '............',
-    'k..........k',
-    'kkkkkkkkkkkk',
-  ]);
 
   SITES.forEach(s => { new Image().src = `/logos/${s[1]}.png`; });
   const shown = [0, 1, 2];
