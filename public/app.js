@@ -1,5 +1,6 @@
 const $ = id => document.getElementById(id);
 let current = null;
+const isApp = document.documentElement.classList.contains('is-app');
 
 /* ---------- small helpers ---------- */
 const store = {
@@ -129,6 +130,7 @@ $('form').addEventListener('submit', e => { e.preventDefault(); lookup($('url').
 // Used by search results, suggestions and history: load a link into the downloader.
 function useLink(url) {
   showTab('home');
+  if (isApp) setMode('link');
   $('url').value = url;
   lookup(url);
 }
@@ -181,60 +183,114 @@ function applyDefaultQuality() {
   if (typeof ddRender === 'function') ddRender();
 }
 
-// Hosted mode: the server only resolves the media URL, the browser fetches the file itself.
-async function directDownload(opt, title, auto = false) {
-  const name = (title || 'video').replace(/[^\w\- ]+/g, '').trim().slice(0, 80) || 'video';
-  try {
-    const r = await fetch(opt.url);
-    if (!r.ok) throw new Error('blocked');
-    const blob = await r.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${name}.${opt.ext}`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-  } catch {
-    // The host doesn't allow in-page downloads. Without a tap, browsers block pop-ups, so ask for one.
-    if (auto) throw new Error('Ready! Tap Download to save the video.');
-    // Otherwise open the file so it can be saved from the browser.
-    window.open(opt.url, '_blank', 'noopener');
-    showError('Your browser opened the video in a new tab. Right-click it (or use the ⋮ menu) and choose "Save video as".');
+/* ---------- download engine: everything is saved from inside the app ---------- */
+const filenameOf = (r, fallback) => /filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '')?.[1] || fallback;
+const safeName = t => ((t || 'video').replace(/[^\w\- ]+/g, '').trim().slice(0, 80) || 'video');
+
+// Streams a file from our own domain so we can show real progress.
+async function fetchBlob(url, fallbackName, onProgress) {
+  const r = await fetch(url);
+  if (!r.ok) {
+    let msg = 'Download failed.';
+    try { msg = (await r.json()).error || msg; } catch {}
+    throw new Error(msg);
   }
+  const total = Number(r.headers.get('Content-Length')) || 0;
+  const type = r.headers.get('Content-Type') || '';
+  const name = filenameOf(r, fallbackName);
+  if (!r.body || !total) { onProgress?.(null); return { blob: await r.blob(), name }; }
+  const reader = r.body.getReader(), chunks = [];
+  let got = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    got += value.length;
+    onProgress?.(got / total);
+  }
+  return { blob: new Blob(chunks, { type }), name };
 }
 
-$('dl').addEventListener('click', e => { e.preventDefault(); startDownload(); });
+// Fetch the chosen option as a file. `pick` is a hosted option index, or a quality word for the local server.
+function grab(data, pick, onProgress) {
+  if (data.options) {
+    const o = data.options[pick] || data.options[0];
+    const qs = new URLSearchParams({ u: o.url, n: safeName(data.title), e: o.ext || 'mp4', r: data.url || '' });
+    return fetchBlob('/api/dl?' + qs, `${safeName(data.title)}.${o.ext || 'mp4'}`, onProgress);
+  }
+  const qs = new URLSearchParams({ url: data.url, quality: pick, title: data.title });
+  return fetchBlob('/api/download?' + qs, `${safeName(data.title)}.mp4`, onProgress);
+}
 
-async function startDownload(auto = false) {
+// Which option to use: 'video', 'audio' or 'auto' (follows the Default quality setting).
+function pickFor(data, kind) {
+  const wantAudio = kind === 'audio' || (kind === 'auto' && settings.quality === 'audio');
+  const low = kind !== 'audio' && settings.quality === 'low';
+  if (!data.options) return wantAudio ? 'audio' : low && data.heights?.length ? String(data.heights[data.heights.length - 1]) : 'best';
+  const idx = data.options.map((o, i) => i);
+  const audio = idx.filter(i => data.options[i].kind === 'audio' || /audio/i.test(data.options[i].label));
+  const video = idx.filter(i => !audio.includes(i));
+  if (wantAudio) return audio[0] ?? video[0] ?? 0;
+  if (low && video.length) return video[video.length - 1];
+  return video[0] ?? 0;
+}
+
+// Put the file on the device. iPhone/iPad: the share sheet's "Save Video" puts it in Photos. Everything else: a normal save.
+const IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let pendingSave = null;
+async function saveToDevice({ blob, name }) {
+  if (IOS && navigator.canShare) {
+    const file = new File([blob], name, { type: blob.type || 'video/mp4' });
+    if (navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); return true; }
+      catch (e) { if (e.name === 'AbortError') return true; pendingSave = { blob, name }; return false; } // needs a tap
+    }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+  return true;
+}
+async function retryPendingSave() {
+  if (!pendingSave) return false;
+  const p = pendingSave;
+  pendingSave = null;
+  return saveToDevice(p);
+}
+
+const setProg = (el, f) => { el.hidden = false; el.firstElementChild.style.width = f == null ? '100%' : Math.round(f * 100) + '%'; el.classList.toggle('indet', f == null); };
+const failMsg = e => (/refused|blocked|403/i.test(e.message) ? 'That site would not let the app save this one. Try another quality, or another video.' : e.message);
+
+$('dl').addEventListener('click', e => { e.preventDefault(); startDownload(); });
+$('saveNow').addEventListener('click', async () => { if (await retryPendingSave()) { $('saveNow').hidden = true; toast('Saved'); } });
+
+async function startDownload() {
   if (!current) return;
-  const btn = $('dl');
-  const quality = $('quality').options[$('quality').selectedIndex]?.text || '';
+  const btn = $('dl'), picked = $('quality').value;
+  const label = $('quality').options[$('quality').selectedIndex]?.text || '';
   btn.classList.add('busy');
-  btn.textContent = 'Preparing…';
-  $('note').hidden = false;
+  btn.textContent = 'Saving…';
+  $('saveNow').hidden = true;
   showError('');
   try {
-    if (current.options) {
-      await directDownload(current.options[Number($('quality').value)], current.title, auto);
-    } else {
-      const qs = new URLSearchParams({ url: current.url, quality: $('quality').value, title: current.title });
-      const r = await fetch('/api/download?' + qs);
-      if (!r.ok) throw new Error((await r.json()).error || 'Download failed.');
-      const blob = await r.blob();
-      const name = /filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '')?.[1] || 'video.mp4';
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-    }
-    addHistory({ ...current, quality });
-    toast('Saved to History');
+    const file = await grab(current, current.options ? Number(picked) : picked, f => { setProg($('dlProg'), f); btn.textContent = f == null ? 'Saving…' : `Saving ${Math.round(f * 100)}%`; });
+    const saved = await saveToDevice(file);
+    addHistory({ ...current, quality: label });
+    if (saved) toast('Saved to your device'); else { $('saveNow').hidden = false; toast('Tap “Save to my device” to finish'); }
   } catch (err) {
-    showError(err.message);
+    // On the plain website we may still hand the file to the browser; inside the app we never leave it.
+    if (!isApp && current.options) {
+      window.open(current.options[Number(picked)]?.url, '_blank', 'noopener');
+      showError('Your browser opened the video in a new tab. Choose "Save video as" there.');
+    } else showError(failMsg(err));
   } finally {
     btn.classList.remove('busy');
     btn.textContent = 'Download';
-    $('note').hidden = true;
+    $('dlProg').hidden = true;
   }
 }
 
@@ -250,10 +306,6 @@ function renderHistory() {
   const list = store.get('history', []);
   const counts = list.reduce((m, h) => ((m[h.platform] = (m[h.platform] || 0) + 1), m), {});
   if (historyFilter !== 'all' && !counts[historyFilter]) historyFilter = 'all';
-  $('historyFilter').innerHTML = list.length
-    ? [['all', `All · ${list.length}`], ...Object.keys(counts).map(k => [k, `${platformLabel(k)} · ${counts[k]}`])]
-        .map(([k, label]) => `<button type="button" role="radio" class="chip-btn" data-k="${esc(k)}" aria-checked="${k === historyFilter}">${k === 'all' ? '' : logo(k)}${esc(label)}</button>`).join('')
-    : '';
   const shown = list.filter(h => historyFilter === 'all' || h.platform === historyFilter);
   $('historyList').innerHTML = shown.map(h => `
     <li class="hist-item" data-id="${esc(h.id)}">
@@ -269,10 +321,17 @@ function renderHistory() {
         <button type="button" class="mini-btn" data-act="del" aria-label="Remove from history">✕</button>
       </div>
     </li>`).join('');
+  $('historyBar').hidden = !list.length;
+  $('historyCount').textContent = `${shown.length} video${shown.length === 1 ? '' : 's'}`;
+  $('historyFilterLabel').textContent = historyFilter === 'all' ? 'All' : platformLabel(historyFilter);
   $('historyEmpty').hidden = list.length > 0;
   $('clearHistory').hidden = !list.length;
 }
-$('historyFilter').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) { historyFilter = b.dataset.k; renderHistory(); } });
+$('historyFilterBtn').addEventListener('click', () => {
+  const list = store.get('history', []);
+  const counts = list.reduce((m, h) => ((m[h.platform] = (m[h.platform] || 0) + 1), m), {});
+  openPicker({ title: 'Filter history', selected: historyFilter, items: [['all', 'All', list.length], ...Object.keys(counts).map(k => [k, platformLabel(k), counts[k]])], onPick: k => { historyFilter = k; renderHistory(); } });
+});
 $('historyList').addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if (!b) return;
@@ -293,16 +352,45 @@ $('clearHistory2').addEventListener('click', clearHistory);
 
 /* ---------- search ---------- */
 let searchPlatform = 'all';
-const SEARCH_CHIPS = ['all', 'youtube', 'instagram', 'tiktok', 'pinterest', 'x', 'dribbble', 'facebook'];
-$('platformChips').innerHTML = SEARCH_CHIPS.map(k =>
-  `<button type="button" role="radio" class="chip-btn" data-k="${k}" aria-checked="${k === 'all'}">${k === 'all' ? '' : logo(k)}${k === 'all' ? 'All' : platformLabel(k)}</button>`).join('');
-$('platformChips').addEventListener('click', e => {
-  const b = e.target.closest('[data-k]');
-  if (!b) return;
-  searchPlatform = b.dataset.k;
-  $('platformChips').querySelectorAll('[data-k]').forEach(x => x.setAttribute('aria-checked', String(x === b)));
-  if ($('q').value.trim()) runSearch($('q').value.trim());
-});
+const SEARCH_ITEMS = ['all', 'youtube', 'instagram', 'tiktok', 'pinterest', 'x', 'dribbble', 'facebook', 'linkedin'];
+function syncFilter() {
+  const label = searchPlatform === 'all' ? 'All' : platformLabel(searchPlatform);
+  $('filterLogo').innerHTML = searchPlatform === 'all' ? '' : logo(searchPlatform);
+  $('filterLabel').textContent = label;
+  $('filterBtn').setAttribute('aria-label', `Filter by platform: ${label}`);
+}
+$('filterBtn').addEventListener('click', () => openPicker({
+  title: 'Search on', selected: searchPlatform,
+  items: SEARCH_ITEMS.map(k => [k, k === 'all' ? 'All' : platformLabel(k)]),
+  onPick: k => { searchPlatform = k; syncFilter(); if ($('q').value.trim()) runSearch($('q').value.trim()); },
+}));
+
+// One finder, two ways in: paste a link, or search by keyword.
+let mode = 'link';
+function setMode(m) {
+  mode = m;
+  store.set('mode', m);
+  $('form').hidden = m !== 'link';
+  $('searchForm').hidden = m !== 'search';
+  $('searchOut').hidden = m !== 'search';
+  document.querySelectorAll('.modes [data-mode]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === m)));
+  $('error').hidden = true;
+}
+document.querySelector('.modes').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) { setMode(b.dataset.mode); (b.dataset.mode === 'link' ? $('url') : $('q')).focus(); } });
+if (isApp) { setMode(store.get('mode', 'link')); syncFilter(); }
+
+// Bottom-sheet picker with a 3-column grid (used for the platform filters).
+let pickHandler = null;
+function openPicker({ title, items, selected, onPick }) {
+  $('pickTitle').textContent = title;
+  $('pickGrid').innerHTML = items.map(([k, label, count]) =>
+    `<li><button type="button" data-k="${esc(k)}" aria-pressed="${k === selected}">${k === 'all' ? '<span class="pl-all" aria-hidden="true">✦</span>' : logo(k)}<b>${esc(label)}</b>${count != null ? `<i>${count}</i>` : ''}</button></li>`).join('');
+  pickHandler = onPick;
+  $('pickSheet').showModal();
+}
+$('pickGrid').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; $('pickSheet').close(); pickHandler?.(b.dataset.k); });
+$('pickClose').addEventListener('click', () => $('pickSheet').close());
+document.querySelectorAll('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d && d.id !== 'privacy') d.close(); }));
 $('searchForm').addEventListener('submit', e => { e.preventDefault(); const q = $('q').value.trim(); if (q) runSearch(q); });
 
 const cardHTML = it => `
@@ -375,9 +463,10 @@ function renderTopics() {
 $('topics').addEventListener('click', e => {
   const b = e.target.closest('[data-topic]');
   if (!b) return;
+  setMode('search');
   $('q').value = b.dataset.topic;
   runSearch(b.dataset.topic);
-  $('searchHead').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('searchForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 async function loadForYou() {
@@ -596,6 +685,7 @@ $('inbox').addEventListener('click', e => {
   store.set('inbox', store.get('inbox', []).map(n => (n.q === b.dataset.q ? { ...n, read: true } : n)));
   updateBadge();
   showTab('home');
+  setMode('search');
   $('q').value = b.dataset.q;
   runSearch(b.dataset.q);
 });
@@ -628,7 +718,7 @@ function installSteps() {
   return ['Click the <b>install icon</b> at the right end of the address bar (or the <b>⋮</b> menu → <b>Install Grab</b>).', 'Confirm.'];
 }
 
-const isApp = document.documentElement.classList.contains('is-app');
+
 
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
 addEventListener('appinstalled', () => { installEvent = null; $('installHelp').hidden = true; toast('Installed! Open Grab from your home screen.'); });
@@ -686,6 +776,59 @@ $('installCta').addEventListener('click', install);
   $('footPolicy').addEventListener('click', openPolicy);
 })();
 
+/* ---------- share sheet: opened when a link is shared to Grab from another app ---------- */
+async function runShare(link) {
+  const dlg = $('shareSheet');
+  const reset = () => {
+    $('shMedia').hidden = true; $('shActions').hidden = true; $('shProg').hidden = true; $('shSaveNow').hidden = true;
+    $('shTitle').textContent = 'Getting your video…';
+    $('shSub').textContent = new URL(link).hostname.replace(/^www\./, '');
+  };
+  reset();
+  if (!dlg.open) dlg.showModal();
+  let data;
+  try {
+    const r = await fetch('/api/info?url=' + encodeURIComponent(link));
+    data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Something went wrong.');
+  } catch (err) {
+    $('shTitle').textContent = "Couldn't get that video";
+    $('shSub').textContent = err.message;
+    return;
+  }
+  data = { url: link, ...data, platform: platformKey(data.source, link) };
+  $('shThumb').src = data.thumbnail || '';
+  $('shMedia').hidden = !data.thumbnail;
+  $('shSrc').innerHTML = logo(data.platform);
+  $('shTitle').textContent = data.title;
+  $('shSub').textContent = [data.source, data.uploader, fmtDuration(data.duration)].filter(Boolean).join(' · ');
+  const picks = { video: pickFor(data, 'video'), audio: pickFor(data, 'audio') };
+  $('shAudio').hidden = !!data.options && !data.options.some(o => o.kind === 'audio' || /audio/i.test(o.label));
+
+  const go = async kind => {
+    $('shActions').hidden = true;
+    setProg($('shProg'), 0);
+    $('shSub').textContent = kind === 'audio' ? 'Saving the audio…' : 'Saving the video…';
+    try {
+      const file = await grab(data, kind === 'auto' ? pickFor(data, 'auto') : picks[kind], f => setProg($('shProg'), f));
+      const saved = await saveToDevice(file);
+      addHistory({ ...data, quality: kind === 'audio' || (kind === 'auto' && settings.quality === 'audio') ? 'Audio only' : 'Video' });
+      $('shTitle').textContent = saved ? 'Saved ✓' : 'Almost there';
+      $('shSub').textContent = saved ? (IOS ? 'It is in your Photos.' : 'It is on your device. Look in your Gallery or Downloads.') : 'Tap below to finish saving.';
+      $('shSaveNow').hidden = saved;
+    } catch (err) {
+      $('shTitle').textContent = "Couldn't save it";
+      $('shSub').textContent = failMsg(err);
+      $('shActions').hidden = false;
+    } finally { $('shProg').hidden = true; }
+  };
+  $('shVideo').onclick = () => go('video');
+  $('shAudio').onclick = () => go('audio');
+  if (settings.autoShare) go('auto'); else $('shActions').hidden = false;
+}
+$('shClose').addEventListener('click', () => $('shareSheet').close());
+$('shSaveNow').addEventListener('click', async () => { if (await retryPendingSave()) { $('shSaveNow').hidden = true; $('shTitle').textContent = 'Saved ✓'; } });
+
 (async function start() {
   const p = new URLSearchParams(location.search);
   // Share target: other apps send ?url=…&text=…&title=… ; pull the first web link out of it.
@@ -699,9 +842,9 @@ $('installCta').addEventListener('click', install);
   syncMeta();
 
   if (shared) {
-    $('url').value = shared;
-    if ((await lookup(shared)) && settings.autoShare) startDownload(true);
+    runShare(shared);
   } else if (q) {
+    setMode('search');
     $('q').value = q;
     runSearch(q);
   }

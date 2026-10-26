@@ -573,3 +573,74 @@ html.is-app .tabbar {
 html.is-app .chips.scroll { margin-left: -18px; margin-right: -18px; padding-left: 18px; padding-right: 18px; }
 html.is-app .sheet { margin-bottom: 0; }
 @media (min-width: 481px) { html.is-app .sheet { border-radius: 28px; width: min(420px, calc(100vw - 24px)); } }
+
+/* ============ app: one finder (link / keyword), filter, progress, share sheet ============ */
+.finder { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.finder > * { min-width: 0; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: rgba(0, 0, 0, .2); border-radius: 18px; }
+:root[data-theme="light"] .modes { background: rgba(30, 16, 70, .08); }
+.modes button {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 0; border-radius: 14px; background: none; color: var(--muted);
+  font: 800 .9rem "Manrope", sans-serif; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s;
+}
+.modes svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.modes button[aria-checked="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 18px rgba(214, 255, 61, .3); }
+#form, #searchForm { display: flex; gap: 10px; }
+#form[hidden], #searchForm[hidden] { display: none; }
+#searchOut { margin-top: 14px; }
+
+.filter-btn, .filter-pill {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; cursor: pointer;
+  font: 700 .8rem "Manrope", sans-serif; color: var(--text); background: var(--glass-3); border: 1px solid var(--stroke); border-radius: 999px;
+}
+.filter-btn:hover, .filter-pill:hover { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.filter-btn svg, .filter-pill svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.filter-btn #filterLogo .pl-logo { width: 18px; height: 18px; }
+.hist-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 12px; font-size: .84rem; color: var(--muted); font-weight: 700; }
+.hist-bar[hidden] { display: none; }
+
+/* platform picker: 3 per row */
+.pick-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 8px 0 16px; padding: 0; list-style: none; }
+.pick-grid button {
+  position: relative; display: grid; justify-items: center; align-content: center; gap: 6px; width: 100%; min-height: 96px; padding: 12px 6px; cursor: pointer;
+  color: var(--text); background: var(--glass-2); border: 1px solid var(--stroke); border-radius: var(--r-md); transition: background .2s, transform .2s, border-color .2s;
+}
+.pick-grid button:hover { background: var(--glass-3); transform: translateY(-2px); }
+.pick-grid button[aria-pressed="true"] { border-color: var(--accent); background: rgba(214, 255, 61, .14); box-shadow: 0 0 0 1px var(--accent) inset; }
+.pick-grid b { font: 700 .82rem "Manrope", sans-serif; }
+.pick-grid i { position: absolute; top: 6px; right: 8px; font-style: normal; font-size: .7rem; font-weight: 800; color: var(--muted); }
+.pick-grid .pl-logo { width: 44px; height: 44px; }
+.pl-all { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 1.2rem; }
+#pickSheet .ghost-btn, #shareSheet .ghost-btn, #shareSheet .btn { width: 100%; }
+
+/* progress */
+.progress { height: 8px; margin: 12px 0 0; overflow: hidden; background: var(--glass-3); border-radius: 999px; }
+.progress[hidden] { display: none; }
+.progress i { display: block; width: 0; height: 100%; background: var(--accent); border-radius: inherit; transition: width .2s ease; }
+.progress.indet i { animation: slide 1s ease-in-out infinite; width: 40% !important; }
+@keyframes slide { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+#saveNow { margin-top: 12px; width: 100%; border: 0; }
+
+/* share sheet */
+.sh-media { position: relative; margin: 0 0 14px; border-radius: 18px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--glass-3); }
+.sh-media[hidden] { display: none; }
+.sh-media img { width: 100%; height: 100%; object-fit: cover; }
+.sh-src { position: absolute; left: 10px; top: 10px; }
+.sh-src .pl-logo { width: 30px; height: 30px; box-shadow: 0 2px 10px rgba(0, 0, 0, .4); }
+.sh-actions { display: grid; gap: 10px; margin: 14px 0 10px; }
+.sh-actions[hidden], #shSaveNow[hidden] { display: none; }
+#shareSheet h2 { font-size: 1.15rem; line-height: 1.25; overflow-wrap: anywhere; }
+#shareSheet .sub { margin-bottom: 4px; }
+#shareSheet .btn, #shareSheet .ghost-btn { margin-top: 8px; }
+#shSaveNow { border: 0; }
+
+/* app: compact mobile-app feel, same on phone / tablet / desktop */
+html.is-app .top { margin-bottom: 14px; }
+html.is-app .phone { max-width: 560px; }
+html.is-app .phone-inner { padding-top: max(16px, env(safe-area-inset-top)); }
+html.is-app .tabbar { width: min(540px, calc(100vw - 20px)); }
+html.is-app .field { height: 54px; }
+html.is-app .plus { width: 54px; height: 54px; }
+html.is-app .section { margin-top: 22px; }
+html.is-app .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 520px) { html.is-app .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

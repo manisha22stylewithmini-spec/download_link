@@ -50,13 +50,13 @@ def build(info):
     options = []
     for h in sorted(by_height, reverse=True):
         f = by_height[h]
-        options.append({"label": f"{h}p" if h else "Video", "url": f["url"], "ext": f.get("ext") or "mp4", "headers": f.get("http_headers") or {}})
+        options.append({"label": f"{h}p" if h else "Video", "url": f["url"], "ext": f.get("ext") or "mp4", "kind": "video"})
     if options:
         options[0]["label"] = "Best quality" + (f" ({options[0]['label']})" if options[0]["label"] != "Video" else "")
     audio = [f for f in formats if direct(f) and f.get("vcodec") in (None, "none") and f.get("acodec") not in (None, "none")]
     if audio:
         a = max(audio, key=lambda f: f.get("abr") or 0)
-        options.append({"label": "Audio only", "url": a["url"], "ext": a.get("ext") or "m4a", "headers": {}})
+        options.append({"label": "Audio only", "url": a["url"], "ext": a.get("ext") or "m4a", "kind": "audio"})
     return options
 
 

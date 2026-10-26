@@ -89,6 +89,7 @@ const EXTERNAL = {
   x: ['X', 'https://x.com/search?q={q}%20filter%3Avideos&f=live'],
   dribbble: ['Dribbble', 'https://dribbble.com/search/{q}'],
   facebook: ['Facebook', 'https://www.facebook.com/search/videos/?q={q}'],
+  linkedin: ['LinkedIn', 'https://www.linkedin.com/search/results/content/?keywords={q}'],
 };
 const searchLinks = (q, only) => Object.entries(EXTERNAL)
   .filter(([k]) => !only || k === only)

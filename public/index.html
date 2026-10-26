@@ -80,19 +80,44 @@
 
     <!-- ================= HOME ================= -->
     <section class="view" id="view-home" aria-labelledby="tab-home">
-      <h1>Paste now.<br><span class="grad">Grab anytime.</span></h1>
-      <p class="sub">Drop a link from Pinterest, Instagram, X &amp; more and get the video in seconds.</p>
+      <h1 class="web-only">Paste now.<br><span class="grad">Grab anytime.</span></h1>
+      <p class="sub web-only">Drop a link from Pinterest, Instagram, X &amp; more and get the video in seconds.</p>
 
-      <form id="form">
-        <label class="field">
-          <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
-          <input id="url" type="url" placeholder="Paste a link" required autocomplete="off" aria-label="Video link">
-          <button id="paste" class="paste" type="button" aria-label="Paste from clipboard">
-            <svg viewBox="0 0 24 24"><rect x="8" y="3" width="12" height="14" rx="2"/><path d="M16 21H6a2 2 0 0 1-2-2V8"/></svg>
+      <div class="finder">
+        <div class="modes app-only" role="radiogroup" aria-label="How do you want to find a video?">
+          <button type="button" role="radio" data-mode="link" aria-checked="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+            By link
           </button>
-        </label>
-        <button id="go" class="plus" type="submit" aria-label="Fetch video">→</button>
-      </form>
+          <button type="button" role="radio" data-mode="search" aria-checked="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            By keyword
+          </button>
+        </div>
+
+        <form id="form">
+          <label class="field">
+            <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+            <input id="url" type="url" placeholder="Paste a link" required autocomplete="off" aria-label="Video link">
+            <button id="paste" class="paste" type="button" aria-label="Paste from clipboard">
+              <svg viewBox="0 0 24 24"><rect x="8" y="3" width="12" height="14" rx="2"/><path d="M16 21H6a2 2 0 0 1-2-2V8"/></svg>
+            </button>
+          </label>
+          <button id="go" class="plus" type="submit" aria-label="Fetch video">→</button>
+        </form>
+
+        <form id="searchForm" class="app-only" role="search" hidden>
+          <label class="field">
+            <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input id="q" type="search" placeholder="Try “reel transitions”" autocomplete="off" aria-label="Search keyword" maxlength="80">
+            <button type="button" class="filter-btn" id="filterBtn" aria-haspopup="dialog" aria-label="Filter by platform: All">
+              <span id="filterLogo"></span><span id="filterLabel">All</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            </button>
+          </label>
+          <button class="plus" id="searchGo" type="submit" aria-label="Search">→</button>
+        </form>
+      </div>
 
       <p id="error" role="alert" hidden></p>
 
@@ -109,22 +134,13 @@
             </div>
             <a id="dl" class="btn" href="#">Download</a>
           </div>
+          <div class="progress" id="dlProg" hidden><i></i></div>
+          <button class="btn" type="button" id="saveNow" hidden>Save to my device</button>
           <p id="note" hidden>Preparing your file… this can take a while for long videos.</p>
         </div>
       </section>
 
       <div class="app-only">
-      <h2 class="section" id="searchHead">Find videos</h2>
-      <form id="searchForm" class="search" role="search" aria-labelledby="searchHead">
-        <div class="chips scroll" id="platformChips" role="radiogroup" aria-label="Platform"></div>
-        <div class="search-row">
-          <label class="field">
-            <svg class="link-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-            <input id="q" type="search" placeholder="Try “reel transitions”" autocomplete="off" aria-label="Search keyword" maxlength="80">
-          </label>
-          <button class="plus" id="searchGo" type="submit" aria-label="Search">→</button>
-        </div>
-      </form>
       <div id="searchOut" aria-live="polite"></div>
 
       <div class="section-row">
@@ -165,7 +181,13 @@
     <section class="view app-only" id="view-history" aria-labelledby="tab-history" hidden>
       <h1 class="view-title">History</h1>
       <p class="sub">Everything you've grabbed, saved only on this device.</p>
-      <div class="chips scroll" id="historyFilter" role="radiogroup" aria-label="Filter by platform"></div>
+      <div class="hist-bar" id="historyBar" hidden>
+        <span id="historyCount"></span>
+        <button type="button" class="filter-pill" id="historyFilterBtn" aria-haspopup="dialog">
+          <span id="historyFilterLabel">All</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        </button>
+      </div>
       <ul class="hist" id="historyList"></ul>
       <div class="empty" id="historyEmpty" hidden>
         <img src="/icons/icon-192.png" alt="" width="56" height="56">
@@ -292,6 +314,31 @@
     <button type="button" class="link-btn" id="footPolicy">Privacy</button>
   </div>
 </footer>
+
+<dialog class="sheet app-only" id="pickSheet" aria-labelledby="pickTitle">
+  <div class="sheet-inner">
+    <span class="grabber" aria-hidden="true"></span>
+    <h2 id="pickTitle">Filter by platform</h2>
+    <ul class="pick-grid" id="pickGrid"></ul>
+    <button class="ghost-btn" type="button" id="pickClose">Close</button>
+  </div>
+</dialog>
+
+<dialog class="sheet app-only" id="shareSheet" aria-labelledby="shTitle">
+  <div class="sheet-inner">
+    <span class="grabber" aria-hidden="true"></span>
+    <div class="sh-media" id="shMedia" hidden><img id="shThumb" alt=""><span class="sh-src" id="shSrc"></span></div>
+    <h2 id="shTitle">Getting your video…</h2>
+    <p class="sub" id="shSub">One moment.</p>
+    <div class="progress" id="shProg" hidden><i></i></div>
+    <div class="sh-actions" id="shActions" hidden>
+      <button class="btn" type="button" id="shVideo">Save video</button>
+      <button class="ghost-btn" type="button" id="shAudio">Save audio only</button>
+    </div>
+    <button class="btn" type="button" id="shSaveNow" hidden>Save to my device</button>
+    <button class="ghost-btn" type="button" id="shClose">Close</button>
+  </div>
+</dialog>
 
 <dialog class="sheet" id="privacy" aria-labelledby="privacyTitle">
   <form method="dialog" class="sheet-inner">
