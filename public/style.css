@@ -556,3 +556,20 @@ html.is-web .legal { margin-top: 14px; }
 html.is-web .phone { scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
 html.is-web .phone::-webkit-scrollbar { display: none; width: 0; height: 0; }
 @media (prefers-reduced-motion: reduce) { html.is-web .phone { scroll-behavior: auto; } }
+
+/* ============ installed app: one phone-style layout on every device, no traffic-light scene ============ */
+html.is-app .scene { display: none !important; }
+html.is-app body { padding: 0; display: flex; justify-content: center; align-items: flex-start; }
+html.is-app .phone {
+  max-width: 440px; min-height: 100vh; border-radius: 0; border-width: 0 1px;
+  -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20, 13, 42, .84);
+}
+html.is-app[data-theme="light"] .phone { background: rgba(255, 255, 255, .86); }
+html.is-app .phone-inner { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+html.is-app .tabbar {
+  position: fixed; left: 50%; right: auto; transform: translateX(-50%); width: min(420px, calc(100vw - 20px));
+  bottom: calc(10px + env(safe-area-inset-bottom)); margin: 0;
+}
+html.is-app .chips.scroll { margin-left: -18px; margin-right: -18px; padding-left: 18px; padding-right: 18px; }
+html.is-app .sheet { margin-bottom: 0; }
+@media (min-width: 481px) { html.is-app .sheet { border-radius: 28px; width: min(420px, calc(100vw - 24px)); } }
