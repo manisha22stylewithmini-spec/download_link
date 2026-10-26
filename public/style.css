@@ -539,3 +539,20 @@ html.is-web .legal { margin-top: 14px; }
   .foot-social { justify-content: flex-start; }
   .foot-meta { flex-direction: row; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--stroke); }
 }
+
+/* footer: one-line credit + "connect" group */
+.foot-maker { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; margin: 0; white-space: nowrap; }
+.foot-maker .foot-k { font-size: .7rem; }
+.foot-maker b { font-size: 1.05rem; }
+#makerTag { font-size: .85rem; color: var(--muted); }
+.foot-connect { grid-area: social; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.foot-connect .foot-k { font-size: .7rem; white-space: nowrap; }
+@media (max-width: 760px) {
+  .foot-maker { white-space: normal; }
+  .foot-connect { justify-content: flex-start; flex-wrap: wrap; gap: 10px; }
+}
+
+/* card scrolls (smoothly) when content grows, without showing a scrollbar */
+html.is-web .phone { scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
+html.is-web .phone::-webkit-scrollbar { display: none; width: 0; height: 0; }
+@media (prefers-reduced-motion: reduce) { html.is-web .phone { scroll-behavior: auto; } }

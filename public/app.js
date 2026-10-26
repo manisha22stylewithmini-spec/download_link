@@ -668,7 +668,7 @@ $('installCta').addEventListener('click', install);
 
   if (ok(S.contact)) $('contact').href = safeUrl(S.contact); else $('contact').dataset.soon = '';
   $('makerName').textContent = S.name || '';
-  $('makerTag').textContent = S.tagline || '';
+  $('makerTag').textContent = S.tagline ? ` · ${S.tagline}` : '';
   $('year').textContent = new Date().getFullYear();
   $('projList').innerHTML = (S.projects || []).map(p => `<li>${link(p.url, `<b>${esc(p.name)}</b><span>${esc(p.note || '')}</span>`, 'menu-item')}</li>`).join('');
   $('socialList').innerHTML = (S.socials || []).map(s =>
