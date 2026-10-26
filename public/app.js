@@ -227,3 +227,47 @@ $('install').addEventListener('click', async () => {
   $('url').value = link;
   if (await lookup(link)) startDownload(true);
 })();
+
+/* ---------- traffic light: cycles supported sites, one lamp at a time ---------- */
+(function trafficLight() {
+  // [name, file in /logos, glow colour]. Remove a line to stop advertising a site.
+  const SITES = [
+    ['Pinterest', 'pinterest', '#ff3b30'], ['Dribbble', 'dribbble', '#ff4d9d'], ['X', 'x', '#ffffff'], ['Instagram', 'instagram', '#ff3d8b'],
+    ['TikTok', 'tiktok', '#25f4ee'], ['YouTube', 'youtube', '#ff3030'], ['Facebook', 'facebook', '#4a7bff'], ['LinkedIn', 'linkedin', '#3aa0ff'],
+    ['Snapchat', 'snapchat', '#fff23a'], ['WhatsApp', 'whatsapp', '#3ddc6a'],
+  ];
+  const lamps = [...document.querySelectorAll('#tlBox .lamp')];
+  if (!lamps.length) return;
+  SITES.forEach(s => { new Image().src = `/logos/${s[1]}.png`; });
+
+  const set = (lamp, site) => {
+    lamp.querySelector('img').src = `/logos/${site[1]}.png`;
+    lamp.style.setProperty('--glow', site[2]);
+    lamp.dataset.name = site[0];
+  };
+  lamps.forEach((l, i) => set(l, SITES[i]));
+
+  const light = i => {
+    lamps.forEach((l, n) => l.classList.toggle('on', n === i));
+    const name = $('tlName');
+    name.style.animation = 'none'; void name.offsetWidth; name.style.animation = '';
+    name.textContent = lamps[i].dataset.name;
+  };
+
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    lamps.forEach(l => l.classList.add('on'));
+    $('tlName').textContent = `${SITES.length} sites`;
+    return;
+  }
+
+  let lit = 0, next = lamps.length;
+  light(0);
+  setInterval(() => {
+    if (document.hidden || !lamps[0].offsetParent) return;
+    lit = (lit + 1) % lamps.length;
+    const lamp = lamps[lit];
+    set(lamp, SITES[next++ % SITES.length]);
+    lamp.classList.remove('swap'); void lamp.offsetWidth; lamp.classList.add('swap');
+    light(lit);
+  }, 1800);
+})();
