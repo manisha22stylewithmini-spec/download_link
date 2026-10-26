@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffd21f">
+<meta name="description" content="Paste or share a link from Pinterest, Dribbble, X, Instagram and more to download the video.">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Grab Video">
 <title>Grab Video</title>
 <script>try{var t=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
@@ -17,6 +25,10 @@
       <button class="icon-btn" id="theme" type="button" aria-label="Switch to dark theme">
         <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
         <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
+      </button>
+      <button class="install" id="install" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
+        Install app
       </button>
       <button class="icon-btn" id="clear" type="button" aria-label="Clear link">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
@@ -66,6 +78,12 @@
       <div class="folder gray"><div class="tab"></div><div class="card small"><span class="badge">X</span><span class="count">posts</span><b>X / Twitter</b></div></div>
       <div class="folder lime"><div class="tab"></div><div class="card small"><span class="badge">IG</span><span class="count">reels</span><b>Instagram</b></div></div>
     </div>
+
+    <section id="installHelp" class="help" hidden>
+      <h2 class="section">Add to your device</h2>
+      <ol id="installSteps"></ol>
+      <p class="hint">After installing, <b>Grab Video</b> shows up in the Share menu of other apps (Android and Windows/ChromeOS Chrome). Share a video link to it and it downloads right away.</p>
+    </section>
 
     <p class="legal">Only download content you own or have permission to save. Private videos can't be downloaded.</p>
   </div>

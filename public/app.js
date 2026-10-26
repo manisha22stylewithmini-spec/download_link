@@ -15,9 +15,12 @@ $('paste').addEventListener('click', async () => {
 });
 $('clear').addEventListener('click', () => { $('url').value = ''; $('result').hidden = true; showError(''); $('url').focus(); });
 
-$('form').addEventListener('submit', async e => {
+$('form').addEventListener('submit', e => {
   e.preventDefault();
-  const url = $('url').value.trim();
+  lookup($('url').value.trim());
+});
+
+async function lookup(url) {
   showError('');
   $('result').hidden = true;
   $('go').disabled = true;
@@ -41,16 +44,18 @@ $('form').addEventListener('submit', async e => {
       q.add(new Option('Audio only (MP3)', 'audio'));
     }
     $('result').hidden = false;
+    return true;
   } catch (err) {
     showError(err.message);
+    return false;
   } finally {
     $('go').disabled = false;
     $('go').textContent = '+';
   }
-});
+}
 
 // Hosted mode: the server only resolves the media URL, the browser fetches the file itself.
-async function directDownload(opt, title) {
+async function directDownload(opt, title, auto = false) {
   const name = (title || 'video').replace(/[^\w\- ]+/g, '').trim().slice(0, 80) || 'video';
   try {
     const r = await fetch(opt.url);
@@ -62,14 +67,17 @@ async function directDownload(opt, title) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   } catch {
-    // The host doesn't allow in-page downloads; open the file so it can be saved from the browser.
+    // The host doesn't allow in-page downloads. Without a tap, browsers block pop-ups, so ask for one.
+    if (auto) throw new Error('Ready! Tap Download to save the video.');
+    // Otherwise open the file so it can be saved from the browser.
     window.open(opt.url, '_blank', 'noopener');
     showError('Your browser opened the video in a new tab. Right-click it (or use the ⋮ menu) and choose "Save video as".');
   }
 }
 
-$('dl').addEventListener('click', async e => {
-  e.preventDefault();
+$('dl').addEventListener('click', e => { e.preventDefault(); startDownload(); });
+
+async function startDownload(auto = false) {
   if (!current) return;
   const btn = $('dl');
   btn.classList.add('busy');
@@ -78,7 +86,7 @@ $('dl').addEventListener('click', async e => {
   showError('');
   try {
     if (current.options) {
-      await directDownload(current.options[Number($('quality').value)], current.title);
+      await directDownload(current.options[Number($('quality').value)], current.title, auto);
       return;
     }
     const qs = new URLSearchParams({ url: current.url, quality: $('quality').value, title: current.title });
@@ -98,7 +106,7 @@ $('dl').addEventListener('click', async e => {
     btn.textContent = 'Download';
     $('note').hidden = true;
   }
-});
+}
 
 function applyTheme(t) {
   document.documentElement.dataset.theme = t;
@@ -175,3 +183,47 @@ document.addEventListener('mousedown', e => { if (dd.open && !$('dd').contains(e
 ddList.addEventListener('blur', () => setTimeout(() => { if (dd.open && !$('dd').contains(document.activeElement)) ddClose(false); }, 0));
 new MutationObserver(ddRender).observe(sel, { childList: true });
 ddRender();
+
+/* ---------- PWA: service worker, install button, share target ---------- */
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+let installEvent = null;
+
+function installSteps() {
+  const ua = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(ua)) return ['Tap the <b>Share</b> button in Safari.', 'Choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'];
+  if (/android/i.test(ua)) return ['Open the browser menu <b>⋮</b>.', 'Tap <b>Install app</b> (or <b>Add to Home screen</b>).', 'Confirm.'];
+  if (/safari/i.test(ua) && !/chrome|chromium|edg/i.test(ua)) return ['In the menu bar choose <b>File → Add to Dock</b>.'];
+  return ['Click the <b>install icon</b> at the right end of the address bar (or the <b>⋮</b> menu → <b>Install Grab Video</b>).', 'Confirm.'];
+}
+
+if (!standalone) $('install').hidden = false;
+
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
+addEventListener('appinstalled', () => { installEvent = null; $('install').hidden = true; $('installHelp').hidden = true; });
+
+$('install').addEventListener('click', async () => {
+  if (installEvent) {
+    installEvent.prompt();
+    await installEvent.userChoice.catch(() => {});
+    installEvent = null;
+    return;
+  }
+  $('installSteps').innerHTML = installSteps().map(s => `<li>${s}</li>`).join('');
+  $('installHelp').hidden = !$('installHelp').hidden;
+  if (!$('installHelp').hidden) $('installHelp').scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+// Share target: other apps send ?url=…&text=…&title=… ; pull the first web link out of it and download straight away.
+(async function handleShare() {
+  const p = new URLSearchParams(location.search);
+  const blob = [p.get('url'), p.get('text'), p.get('title')].filter(Boolean).join(' ');
+  const link = blob.match(/https?:\/\/[^\s<>"']+/i)?.[0];
+  if (!link) return;
+  history.replaceState(null, '', location.pathname);
+  $('url').value = link;
+  if (await lookup(link)) startDownload(true);
+})();
