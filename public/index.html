@@ -26,6 +26,19 @@
 <div class="bg-scrim" aria-hidden="true"></div>
 <div class="bg-grain" aria-hidden="true"></div>
 
+<header class="site-head web-only">
+  <a class="site-brand" href="/" aria-label="Grab home"><img src="/icons/icon-192.png" alt="" width="34" height="34"><span>Grab</span></a>
+  <nav class="site-nav" aria-label="More from the maker">
+    <div class="menu" id="projMenu">
+      <button type="button" class="menu-btn" id="projBtn" aria-expanded="false" aria-controls="projList">
+        More projects
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <ul class="menu-list" id="projList" hidden></ul>
+    </div>
+  </nav>
+</header>
+
 <aside class="scene" id="scene" aria-label="Supported sites">
   <p class="sr-only">Works with Pinterest, Dribbble, X, Instagram, TikTok, YouTube, Facebook, LinkedIn, Snapchat and WhatsApp links.</p>
   <div class="tl3" aria-hidden="true">
@@ -59,7 +72,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
         Download app
       </button>
-      <!-- Contact: replace href="#" with your Linktree URL -->
+      <!-- Contact link comes from site-config.js -->
       <a class="icon-btn web-only" id="contact" href="#" target="_blank" rel="noopener" aria-label="Contact">
         <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
       </a>
@@ -272,6 +285,19 @@
   </div>
 </div>
 
+<footer class="site-foot web-only">
+  <div class="foot-maker">
+    <span class="foot-k">Designed &amp; built by</span>
+    <b id="makerName"></b>
+    <span id="makerTag"></span>
+  </div>
+  <ul class="foot-social" id="socialList" aria-label="Social links"></ul>
+  <div class="foot-meta">
+    <span>© <span id="year"></span> Grab</span>
+    <button type="button" class="link-btn" id="footPolicy">Privacy</button>
+  </div>
+</footer>
+
 <dialog class="sheet" id="privacy" aria-labelledby="privacyTitle">
   <form method="dialog" class="sheet-inner">
     <span class="grabber" aria-hidden="true"></span>
@@ -293,6 +319,7 @@
   </form>
 </dialog>
 
+<script src="site-config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

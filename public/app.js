@@ -647,8 +647,32 @@ async function install() {
 $('install').addEventListener('click', install);
 $('installCta').addEventListener('click', install);
 
-// Contact icon: shows a note until a real link (e.g. Linktree) is put in index.html.
-$('contact').addEventListener('click', e => { if ($('contact').getAttribute('href') === '#') { e.preventDefault(); toast('Contact link coming soon'); } });
+/* ---------- website header + footer (details live in site-config.js) ---------- */
+(function siteChrome() {
+  const S = window.SITE || {};
+  const ok = u => u && u !== '#';
+  const link = (u, inner, cls = '', label = '') =>
+    `<a class="${cls}" href="${ok(u) ? esc(safeUrl(u)) : '#'}"${ok(u) ? ' target="_blank" rel="noopener"' : ' data-soon'}${label ? ` aria-label="${esc(label)}"` : ''}>${inner}</a>`;
+
+  if (ok(S.contact)) $('contact').href = safeUrl(S.contact); else $('contact').dataset.soon = '';
+  $('makerName').textContent = S.name || '';
+  $('makerTag').textContent = S.tagline || '';
+  $('year').textContent = new Date().getFullYear();
+  $('projList').innerHTML = (S.projects || []).map(p => `<li>${link(p.url, `<b>${esc(p.name)}</b><span>${esc(p.note || '')}</span>`, 'menu-item')}</li>`).join('');
+  $('socialList').innerHTML = (S.socials || []).map(s =>
+    `<li>${link(s.url, `<img src="/logos/${esc(s.key)}.png" alt="" width="36" height="36">`, 'soc', s.label)}</li>`).join('');
+
+  // links without a real url yet
+  document.addEventListener('click', e => { const a = e.target.closest('a[data-soon]'); if (a) { e.preventDefault(); toast('Link coming soon'); } });
+
+  // "More projects" dropdown
+  const btn = $('projBtn'), list = $('projList');
+  const setOpen = open => { list.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+  btn.addEventListener('click', () => setOpen(list.hidden));
+  document.addEventListener('click', e => { if (!$('projMenu').contains(e.target)) setOpen(false); });
+  $('projMenu').addEventListener('keydown', e => { if (e.key === 'Escape') { setOpen(false); btn.focus(); } });
+  $('footPolicy').addEventListener('click', openPolicy);
+})();
 
 (async function start() {
   const p = new URLSearchParams(location.search);

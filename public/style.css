@@ -443,3 +443,54 @@ html.is-web .top .install { justify-self: center; }
 .get-app span { font-size: .82rem; color: var(--muted); }
 .get-app .btn { grid-column: 1 / -1; border: 0; width: 100%; }
 html.is-web .phone-inner { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+
+/* ============ website header + footer ============ */
+body { flex-wrap: wrap; row-gap: 22px; }
+.site-head, .site-foot { position: relative; z-index: 3; flex: 0 0 100%; max-width: 1100px; margin: 0 auto; }
+.site-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px;
+  background: var(--glass); border: 1px solid var(--stroke); border-radius: 999px;
+  -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%); box-shadow: 0 14px 40px rgba(8, 0, 36, .3);
+}
+.site-brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font: 800 1.1rem "Unbounded", sans-serif; letter-spacing: -.02em; }
+.site-brand img { border-radius: 10px; }
+.menu { position: relative; }
+.menu-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 16px; cursor: pointer;
+  font: 700 .9rem "Manrope", sans-serif; color: var(--text); background: var(--glass-2); border: 1px solid var(--stroke); border-radius: 999px;
+}
+.menu-btn:hover, .menu-btn[aria-expanded="true"] { background: var(--glass-3); }
+.menu-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+.menu-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.menu-list {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 30; width: 260px; margin: 0; padding: 6px; list-style: none;
+  background: rgba(24, 16, 48, .94); border: 1px solid var(--stroke); border-radius: 18px; box-shadow: 0 24px 60px rgba(8, 0, 36, .5); animation: pop .16s ease-out;
+}
+:root[data-theme="light"] .menu-list { background: rgba(255, 255, 255, .97); }
+.menu-item { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; color: var(--text); text-decoration: none; }
+.menu-item b { font-size: .92rem; }
+.menu-item span { font-size: .78rem; color: var(--muted); }
+.menu-item:hover, .menu-item:focus-visible { background: var(--glass-3); }
+
+.site-foot {
+  display: grid; grid-template-columns: 1fr auto; grid-template-areas: "maker social" "meta meta"; gap: 16px 20px; align-items: center; padding: 22px 24px;
+  background: var(--glass); border: 1px solid var(--stroke); border-radius: var(--r-lg);
+  -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+}
+.foot-maker { grid-area: maker; display: grid; gap: 2px; }
+.foot-k { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.foot-maker b { font: 800 1.25rem "Unbounded", sans-serif; letter-spacing: -.02em; }
+#makerTag { font-size: .85rem; color: var(--muted); }
+.foot-social { grid-area: social; display: flex; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.soc { display: block; width: 40px; height: 40px; border-radius: 50%; transition: transform .25s cubic-bezier(.2, 1.4, .4, 1); }
+.soc img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.soc:hover, .soc:focus-visible { transform: translateY(-3px) rotate(-8deg); }
+.foot-meta { grid-area: meta; display: flex; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--stroke); font-size: .8rem; color: var(--muted); }
+
+@media (max-width: 480px) {
+  html.is-web body { row-gap: 0; }
+  .site-head { border-radius: 0; border-width: 0 0 1px; padding: max(10px, env(safe-area-inset-top)) 16px 10px; -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20, 13, 42, .9); }
+  :root[data-theme="light"] .site-head { background: rgba(255, 255, 255, .92); }
+  .site-foot { border-radius: 0; border-width: 1px 0 0; grid-template-columns: 1fr; grid-template-areas: "maker" "social" "meta"; padding: 24px 18px max(24px, env(safe-area-inset-bottom)); }
+  .menu-list { width: min(280px, calc(100vw - 32px)); }
+}
