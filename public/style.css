@@ -428,3 +428,18 @@ h1 { font: 800 2.35rem/1.05 "Unbounded", sans-serif; letter-spacing: -.035em; ma
 @media (prefers-reduced-motion: reduce) {
   .view, .sheet[open], .skel span, .skel b, .skel i { animation: none; }
 }
+
+/* ============ website vs installed app ============ */
+html.is-web .app-only, html.is-app .web-only { display: none !important; }
+html.is-web .top { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 10px; }
+html.is-web .top .install { justify-self: center; }
+.get-app {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; margin-top: 22px; padding: 16px;
+  background: linear-gradient(135deg, rgba(214, 255, 61, .16), rgba(139, 107, 255, .16)); border: 1px solid var(--stroke); border-radius: var(--r-md);
+}
+.get-app img { border-radius: 14px; grid-row: span 1; }
+.get-app div { display: grid; gap: 2px; }
+.get-app b { font-size: 1rem; }
+.get-app span { font-size: .82rem; color: var(--muted); }
+.get-app .btn { grid-column: 1 / -1; border: 0; width: 100%; }
+html.is-web .phone-inner { padding-bottom: max(24px, env(safe-area-inset-bottom)); }

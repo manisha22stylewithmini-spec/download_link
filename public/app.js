@@ -627,12 +627,12 @@ function installSteps() {
   return ['Click the <b>install icon</b> at the right end of the address bar (or the <b>⋮</b> menu → <b>Install Grab</b>).', 'Confirm.'];
 }
 
-if (!standalone) $('install').hidden = false;
+const isApp = document.documentElement.classList.contains('is-app');
 
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
-addEventListener('appinstalled', () => { installEvent = null; $('install').hidden = true; $('installHelp').hidden = true; });
+addEventListener('appinstalled', () => { installEvent = null; $('installHelp').hidden = true; toast('Installed! Open Grab from your home screen.'); });
 
-$('install').addEventListener('click', async () => {
+async function install() {
   if (installEvent) {
     installEvent.prompt();
     await installEvent.userChoice.catch(() => {});
@@ -643,7 +643,12 @@ $('install').addEventListener('click', async () => {
   $('installSteps').innerHTML = installSteps().map(s => `<li>${s}</li>`).join('');
   $('installHelp').hidden = false;
   $('installHelp').scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
+}
+$('install').addEventListener('click', install);
+$('installCta').addEventListener('click', install);
+
+// Contact icon: shows a note until a real link (e.g. Linktree) is put in index.html.
+$('contact').addEventListener('click', e => { if ($('contact').getAttribute('href') === '#') { e.preventDefault(); toast('Contact link coming soon'); } });
 
 (async function start() {
   const p = new URLSearchParams(location.search);
@@ -652,7 +657,8 @@ $('install').addEventListener('click', async () => {
   const tab = p.get('tab') || location.hash.slice(1) || 'home';
   const q = p.get('q');
   if (location.search) history.replaceState(null, '', location.pathname + (tab !== 'home' ? '#' + tab : ''));
-  showTab(shared ? 'home' : tab, { push: false });
+  showTab(shared || !isApp ? 'home' : tab, { push: false });
+  if (!isApp) return; // the website only needs the link box
   updateBadge();
   syncMeta();
 

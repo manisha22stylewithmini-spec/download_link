@@ -12,6 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Grab Video">
 <title>Grab Video</title>
+<script>(function(){var d=document.documentElement,q=location.search;try{if(/[?&]mode=app\b/.test(q))sessionStorage.setItem("gv.mode","app");if(/[?&]mode=web\b/.test(q))sessionStorage.removeItem("gv.mode")}catch(e){}var app=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;try{app=app||sessionStorage.getItem("gv.mode")==="app"}catch(e){}d.classList.add(app?"is-app":"is-web")})();</script>
 <script>try{var t=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,17 +50,19 @@
 <div class="phone" id="app">
   <div class="phone-inner">
     <header class="top">
-      <div class="brand"><img src="/icons/icon-192.png" alt="" width="32" height="32"><span>Grab</span></div>
-      <div class="top-actions">
-        <button class="install" id="install" type="button" hidden>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
-          Install app
-        </button>
-        <button class="icon-btn" id="theme" type="button" aria-label="Switch to dark theme">
-          <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
-          <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
-        </button>
-      </div>
+      <div class="brand app-only"><img src="/icons/icon-192.png" alt="" width="32" height="32"><span>Grab</span></div>
+      <button class="icon-btn" id="theme" type="button" aria-label="Switch to dark theme">
+        <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
+        <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
+      </button>
+      <button class="install web-only" id="install" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
+        Download app
+      </button>
+      <!-- Contact: replace href="#" with your Linktree URL -->
+      <a class="icon-btn web-only" id="contact" href="#" target="_blank" rel="noopener" aria-label="Contact">
+        <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+      </a>
     </header>
 
     <!-- ================= HOME ================= -->
@@ -97,6 +100,7 @@
         </div>
       </section>
 
+      <div class="app-only">
       <h2 class="section" id="searchHead">Find videos</h2>
       <form id="searchForm" class="search" role="search" aria-labelledby="searchHead">
         <div class="chips scroll" id="platformChips" role="radiogroup" aria-label="Platform"></div>
@@ -117,6 +121,27 @@
       <p class="hint" id="fyHint"></p>
       <div class="chips wrap" id="topics" aria-label="Trending topics"></div>
       <div class="cards" id="forYou" aria-live="polite"></div>
+      </div>
+
+      <div class="web-only">
+        <h2 class="section">Works with</h2>
+        <div class="bento">
+          <div class="tile"><img src="/logos/pinterest.png" alt="" width="256" height="256"><b>Pinterest</b><span>pins</span></div>
+          <div class="tile"><img src="/logos/dribbble.png" alt="" width="256" height="256"><b>Dribbble</b><span>shots</span></div>
+          <div class="tile"><img src="/logos/x.png" alt="" width="256" height="256"><b>X</b><span>posts</span></div>
+          <div class="tile"><img src="/logos/instagram.png" alt="" width="256" height="256"><b>Instagram</b><span>reels</span></div>
+          <div class="tile wide">
+            <div class="stack"><img src="/logos/tiktok.png" alt=""><img src="/logos/youtube.png" alt=""><img src="/logos/facebook.png" alt=""><img src="/logos/snapchat.png" alt=""></div>
+            <b>TikTok, YouTube, Facebook &amp; more</b>
+          </div>
+        </div>
+
+        <div class="get-app">
+          <img src="/icons/icon-192.png" alt="" width="52" height="52">
+          <div><b>Get the full Grab app</b><span>Search videos, keep your download history, get picks for your niche, and share links straight from Instagram, TikTok &amp; more.</span></div>
+          <button class="btn" id="installCta" type="button">Download app</button>
+        </div>
+      </div>
 
       <section id="installHelp" class="help" hidden>
         <h2 class="section">Add to your device</h2>
@@ -128,7 +153,7 @@
     </section>
 
     <!-- ================= HISTORY ================= -->
-    <section class="view" id="view-history" aria-labelledby="tab-history" hidden>
+    <section class="view app-only" id="view-history" aria-labelledby="tab-history" hidden>
       <h1 class="view-title">History</h1>
       <p class="sub">Everything you've grabbed, saved only on this device.</p>
       <div class="chips scroll" id="historyFilter" role="radiogroup" aria-label="Filter by platform"></div>
@@ -143,7 +168,7 @@
     </section>
 
     <!-- ================= SETTINGS ================= -->
-    <section class="view" id="view-settings" aria-labelledby="tab-settings" hidden>
+    <section class="view app-only" id="view-settings" aria-labelledby="tab-settings" hidden>
       <h1 class="view-title">Settings</h1>
 
       <h2 class="section">Downloads</h2>
@@ -196,7 +221,7 @@
     </section>
 
     <!-- ================= ALERTS ================= -->
-    <section class="view" id="view-alerts" aria-labelledby="tab-alerts" hidden>
+    <section class="view app-only" id="view-alerts" aria-labelledby="tab-alerts" hidden>
       <h1 class="view-title">Alerts</h1>
       <p class="sub">Suggestions picked from what you search and download.</p>
 
@@ -230,7 +255,7 @@
     </section>
 
     <!-- ================= TAB BAR ================= -->
-    <nav class="tabbar" role="tablist" aria-label="Sections">
+    <nav class="tabbar app-only" role="tablist" aria-label="Sections">
       <button role="tab" id="tab-home" data-tab="home" aria-controls="view-home">
         <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><span>Home</span>
       </button>
