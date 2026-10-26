@@ -228,7 +228,17 @@ $('install').addEventListener('click', async () => {
   if (await lookup(link)) startDownload(true);
 })();
 
-/* ---------- traffic light: cycles supported sites, one lamp at a time ---------- */
+/* ---------- background video: pause for reduced motion ---------- */
+(function bgVideo() {
+  const v = document.querySelector('.bg-video');
+  if (!v) return;
+  const rm = matchMedia('(prefers-reduced-motion: reduce)');
+  const sync = () => (rm.matches ? v.pause() : v.play().catch(() => {}));
+  rm.addEventListener?.('change', sync);
+  sync();
+})();
+
+/* ---------- traffic light: three logos, a random lamp swaps to a random site ---------- */
 (function trafficLight() {
   // [name, file in /logos, glow colour]. Remove a line to stop advertising a site.
   const SITES = [
@@ -236,38 +246,85 @@ $('install').addEventListener('click', async () => {
     ['TikTok', 'tiktok', '#25f4ee'], ['YouTube', 'youtube', '#ff3030'], ['Facebook', 'facebook', '#4a7bff'], ['LinkedIn', 'linkedin', '#3aa0ff'],
     ['Snapchat', 'snapchat', '#fff23a'], ['WhatsApp', 'whatsapp', '#3ddc6a'],
   ];
-  const lamps = [...document.querySelectorAll('#tlBox .lamp')];
-  if (!lamps.length) return;
+  const scene = $('scene');
+  const lamps = [...document.querySelectorAll('#tlBox .lamp3')];
+  if (!scene || !lamps.length) return;
+
+  // scale the fixed 440x760 drawing to the window
+  const fit = () => scene.style.setProperty('--s', Math.min(1, (innerHeight - 80) / 760).toFixed(3));
+  addEventListener('resize', fit);
+  fit();
+
+  // original pixel art for the yellow sign panels
+  const PAL = { r: '#ff5d8f', o: '#ffb000', k: '#1b1b1b', p: '#ff8fb8', g: '#47c23a', G: '#2a8a2a', w: '#ffffff' };
+  const pixel = (id, rows) => {
+    const svg = $(id), h = rows.length, w = rows[0].length;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.innerHTML = rows.flatMap((row, y) => [...row].map((ch, x) => (PAL[ch] ? `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${PAL[ch]}"/>` : ''))).join('');
+  };
+  pixel('pxFlower', [
+    '....rrrrrr....',
+    '..rrrrrrrrrr..',
+    '.rrroooooorrr.',
+    '.rroooooooorr.',
+    'rrookooookoorr',
+    'rrookooookoorr',
+    'rropooooooporr',
+    'rrooookkooooor',
+    '.rroooooooorr.',
+    '.rrroooooorrr.',
+    '..rrrrrrrrrr..',
+    '....rrgrrr....',
+    '.gg...g...gg..',
+    '.ggg..g..ggg..',
+    '..GGG.g.GGG...',
+    '......G.......',
+  ]);
+  pixel('pxArrow', [
+    '....kkkk....',
+    '....kppk....',
+    '....kppk....',
+    '....kppk....',
+    '.kkkkppkkkk.',
+    '..kppppppk..',
+    '...kppppk...',
+    '....kppk....',
+    '.....kk.....',
+    '............',
+    'k..........k',
+    'kkkkkkkkkkkk',
+  ]);
+
   SITES.forEach(s => { new Image().src = `/logos/${s[1]}.png`; });
-
-  const set = (lamp, site) => {
-    lamp.querySelector('img').src = `/logos/${site[1]}.png`;
-    lamp.style.setProperty('--glow', site[2]);
-    lamp.dataset.name = site[0];
+  const shown = [0, 1, 2];
+  const name = $('tlName');
+  const set = (i, site) => {
+    shown[i] = site;
+    const [label, file, glow] = SITES[site];
+    lamps[i].querySelector('img').src = `/logos/${file}.png`;
+    lamps[i].style.setProperty('--glow', glow);
+    name.textContent = label;
+    name.classList.remove('in'); void name.offsetWidth; name.classList.add('in');
   };
-  lamps.forEach((l, i) => set(l, SITES[i]));
+  shown.forEach((s, i) => set(i, s));
+  name.textContent = SITES[0][0];
 
-  const light = i => {
-    lamps.forEach((l, n) => l.classList.toggle('on', n === i));
-    const name = $('tlName');
-    name.style.animation = 'none'; void name.offsetWidth; name.style.animation = '';
-    name.textContent = lamps[i].dataset.name;
-  };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    lamps.forEach(l => l.classList.add('on'));
-    $('tlName').textContent = `${SITES.length} sites`;
-    return;
-  }
-
-  let lit = 0, next = lamps.length;
-  light(0);
-  setInterval(() => {
-    if (document.hidden || !lamps[0].offsetParent) return;
-    lit = (lit + 1) % lamps.length;
-    const lamp = lamps[lit];
-    set(lamp, SITES[next++ % SITES.length]);
-    lamp.classList.remove('swap'); void lamp.offsetWidth; lamp.classList.add('swap');
-    light(lit);
-  }, 1800);
+  const rand = n => Math.floor(Math.random() * n);
+  let last = -1;
+  (function tick() {
+    setTimeout(() => {
+      if (!document.hidden && scene.offsetParent) {
+        let lamp;
+        do lamp = rand(lamps.length); while (lamp === last);
+        last = lamp;
+        const pool = SITES.map((_, i) => i).filter(i => !shown.includes(i));
+        const el = lamps[lamp];
+        el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip');
+        setTimeout(() => set(lamp, pool[rand(pool.length)]), 170);
+      }
+      tick();
+    }, 1100 + Math.random() * 1200);
+  })();
 })();

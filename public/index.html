@@ -13,24 +13,57 @@
 <meta name="apple-mobile-web-app-title" content="Grab Video">
 <title>Grab Video</title>
 <script>try{var t=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="shape pink" aria-hidden="true"></div>
-<div class="shape purple" aria-hidden="true"></div>
+<video class="bg-video" autoplay muted loop playsinline preload="auto" poster="/media/bg.jpg" aria-hidden="true">
+  <source src="/media/bg.mp4" type="video/mp4">
+</video>
+<div class="bg-tint" aria-hidden="true"></div>
 
-<aside class="tl" aria-label="Supported sites">
-  <div class="tl-board" aria-hidden="true"><span>GRAB</span><span class="lime">ANY LINK</span></div>
-  <div class="tl-neck" aria-hidden="true"></div>
-  <div class="tl-box" id="tlBox" aria-hidden="true">
-    <div class="lamp"><img alt="" width="256" height="256"></div>
-    <div class="lamp"><img alt="" width="256" height="256"></div>
-    <div class="lamp"><img alt="" width="256" height="256"></div>
-  </div>
-  <div class="tl-hang" aria-hidden="true"><span></span><span></span></div>
-  <div class="tl-plate" aria-hidden="true"><span id="tlName">Pinterest</span></div>
-  <div class="tl-pole" aria-hidden="true"></div>
+<aside class="scene" id="scene" aria-label="Supported sites">
   <p class="sr-only">Works with Pinterest, Dribbble, X, Instagram, TikTok, YouTube, Facebook, LinkedIn, Snapchat and WhatsApp links.</p>
+  <div class="tl3" aria-hidden="true">
+    <svg class="arms" viewBox="0 0 440 760">
+      <path class="wire" d="M220 118 L418 520 M220 118 L58 600"/>
+      <path class="arm-under" d="M232 582 C300 568 360 540 418 524 M208 606 L58 606"/>
+      <path class="arm" d="M232 578 C300 564 360 536 418 520 M208 602 L58 602"/>
+    </svg>
+
+    <div class="sticker ring r1">pins</div>
+    <div class="sticker ring r2">reels</div>
+    <div class="sticker px cyan c1">DOWN<b>■</b></div>
+    <div class="sticker px cyan c2"><b>■</b>LOAD</div>
+    <div class="sticker tiny t1">( any link )</div>
+
+    <div class="pole"></div>
+
+    <div class="sign"><span class="px">GRAB</span><span class="px">IT</span><i></i></div>
+
+    <div class="panel pl"><svg id="pxFlower" class="pixel"></svg></div>
+    <div class="panel pr"><svg id="pxArrow" class="pixel"></svg></div>
+    <i class="bracket bl"></i><i class="bracket br"></i>
+
+    <div class="housing" id="tlBox">
+      <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
+      <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
+      <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
+    </div>
+
+    <div class="mini mr"><i></i><i></i><i></i></div>
+    <div class="mini ml"><i></i><i></i><i></i></div>
+
+    <div class="plates"><span class="plate" id="tlName">Pinterest</span><span class="plate">ALL LINKS</span></div>
+
+    <div class="tag">
+      <span class="lime big">SAVE IT</span>
+      <span class="small">no cap ✦ all links</span>
+      <span class="joy">tap, share, saved <b>→</b></span>
+    </div>
+  </div>
 </aside>
 
 <div class="phone">
