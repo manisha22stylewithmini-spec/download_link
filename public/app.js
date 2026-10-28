@@ -853,14 +853,29 @@ $('shSaveNow').addEventListener('click', async () => { if (await retryPendingSav
   maybeAlert(await loadForYou());
 })();
 
-/* ---------- background video: pause for reduced motion ---------- */
+/* ---------- website background video (the installed app has a plain background and never loads it) ---------- */
 (function bgVideo() {
-  const v = document.querySelector('.bg-video');
-  if (!v) return;
+  if (isApp) return;
+  const v = document.createElement('video');
+  v.className = 'bg-video';
+  v.muted = v.loop = v.playsInline = true;
+  v.autoplay = true;
+  v.setAttribute('aria-hidden', 'true');
+  v.poster = '/media/bg.jpg';
+  v.innerHTML = '<source src="/media/bg.mp4" type="video/mp4">';
+  document.body.prepend(v);
   const rm = matchMedia('(prefers-reduced-motion: reduce)');
   const sync = () => (rm.matches ? v.pause() : v.play().catch(() => {}));
   rm.addEventListener?.('change', sync);
   sync();
+})();
+
+/* ---------- installed app on a laptop: open at a phone-style window size (once) ---------- */
+(function windowSize() {
+  if (!isApp || !matchMedia('(display-mode: standalone)').matches || !matchMedia('(pointer: fine)').matches) return;
+  if (store.get('sized', false) || innerWidth < 700) return; // already a small window, or already sized once
+  store.set('sized', true);
+  try { resizeBy(560 - innerWidth, Math.min(screen.availHeight - 60, 860) - innerHeight); } catch {}
 })();
 
 /* ---------- traffic light: three logos, a random lamp swaps to a random site ---------- */

@@ -644,3 +644,41 @@ html.is-app .plus { width: 54px; height: 54px; }
 html.is-app .section { margin-top: 22px; }
 html.is-app .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (min-width: 520px) { html.is-app .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* ============ installed app: plain background, three sizes (mobile / tablet / laptop) ============ */
+html.is-app { --app-w: 100%; --app-pad: 18px; }
+html.is-app .bg-video, html.is-app .bg-scrim, html.is-app .bg-grain { display: none !important; }
+html.is-app body { background: linear-gradient(165deg, #ffffff 0%, #f8ecfa 55%, #e8eeff 100%) fixed; }
+html.is-app[data-theme="dark"] body { background: linear-gradient(165deg, #1b1035 0%, #150c2e 60%, #0f0a24 100%) fixed; }
+html.is-app .phone {
+  width: 100%; max-width: var(--app-w); min-height: 100vh; min-height: 100dvh; border: 0; border-radius: 0;
+  background: transparent !important; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+html.is-app .phone-inner { padding-left: var(--app-pad); padding-right: var(--app-pad); }
+html.is-app .chips.scroll { margin-left: calc(var(--app-pad) * -1); margin-right: calc(var(--app-pad) * -1); padding-left: var(--app-pad); padding-right: var(--app-pad); }
+html.is-app .tabbar { width: min(calc(var(--app-w) - 20px), calc(100vw - 20px)); }
+html.is-app[data-theme="light"] .tabbar { background: rgba(255, 255, 255, .85); }
+
+/* mobile: up to 599px, edge to edge, two cards per row */
+html.is-app .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* tablet: 600–1024px, roomier, up to four cards per row */
+@media (min-width: 600px) {
+  html.is-app { --app-w: 720px; --app-pad: 28px; }
+  html.is-app .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 14px; }
+  html.is-app h2.section { font-size: .82rem; }
+  html.is-app .field, html.is-app .plus { height: 58px; }
+  html.is-app .plus { width: 58px; }
+}
+@media (min-width: 700px) and (max-width: 1024px) {
+  html.is-app .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* laptop: 1025px and up, the compact window from the design (about 560px wide) */
+@media (min-width: 1025px) {
+  html.is-app { --app-w: 560px; --app-pad: 24px; }
+  html.is-app .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 12px; }
+}
+/* sheets match the app width */
+html.is-app .sheet { width: min(calc(var(--app-w) - 16px), calc(100vw - 16px)); }
+@media (max-width: 599px) { html.is-app .sheet { width: 100%; max-width: 100%; border-radius: 28px 28px 0 0; margin-bottom: 0; } }
