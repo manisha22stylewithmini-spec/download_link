@@ -81,6 +81,17 @@
       <h1 class="web-only">Paste now.<br><span class="grad">Grab anytime.</span></h1>
       <p class="sub web-only">Drop a link from Pinterest, Instagram, X &amp; more and get the video in seconds.</p>
 
+      <div class="clip app-only" id="clipBanner" hidden>
+        <div class="clip-t"><b id="clipTitle">Link copied</b><span id="clipSub"></span></div>
+        <button class="btn" type="button" id="clipSave">Save</button>
+        <button class="mini-btn" type="button" id="clipX" aria-label="Dismiss">✕</button>
+      </div>
+      <div class="tip app-only" id="clipTip" hidden>
+        <span>Tip: in Instagram, TikTok or X tap <b>Share → Copy link</b>, then open Grab. It offers to save it right away.</span>
+        <button class="link-btn" type="button" id="clipOn">Turn on</button>
+        <button class="mini-btn" type="button" id="clipTipX" aria-label="Hide tip">✕</button>
+      </div>
+
       <div class="finder">
         <div class="modes app-only" role="radiogroup" aria-label="How do you want to find a video?">
           <button type="button" role="radio" data-mode="link" aria-checked="true">
@@ -210,6 +221,10 @@
             <button type="button" role="radio" data-v="audio">Audio only</button>
           </div>
         </div>
+        <label class="set-row">
+          <div><b>Detect copied links</b><span>When you come back to Grab, offer to save the link you just copied. Asks for clipboard access.</span></div>
+          <span class="switch"><input type="checkbox" role="switch" id="setClip"><i></i></span>
+        </label>
         <label class="set-row">
           <div><b>Auto-download shared links</b><span>Start saving as soon as you share a link to Grab.</span></div>
           <span class="switch"><input type="checkbox" role="switch" id="setAuto"><i></i></span>

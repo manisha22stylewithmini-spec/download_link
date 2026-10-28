@@ -682,3 +682,13 @@ html.is-app .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 /* sheets match the app width */
 html.is-app .sheet { width: min(calc(var(--app-w) - 16px), calc(100vw - 16px)); }
 @media (max-width: 599px) { html.is-app .sheet { width: 100%; max-width: 100%; border-radius: 28px 28px 0 0; margin-bottom: 0; } }
+
+/* copied-link banner + tip */
+.clip, .tip { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 10px 10px 10px 14px; border: 1px solid var(--stroke); border-radius: var(--r-md); background: var(--glass-2); }
+.clip { background: linear-gradient(135deg, rgba(214, 255, 61, .22), rgba(139, 107, 255, .18)); animation: rise .3s ease; }
+.clip[hidden], .tip[hidden] { display: none; }
+.clip-t { flex: 1; min-width: 0; display: grid; }
+.clip-t b { font-size: .92rem; } .clip-t span { font-size: .76rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.clip .btn { min-height: 40px; padding: 0 18px; border: 0; }
+.tip { font-size: .8rem; color: var(--muted); }
+.tip span { flex: 1; } .tip b { color: var(--text); }

@@ -47,7 +47,7 @@ const platformLabel = k => PLATFORMS[k]?.[0] || 'Other';
 const logo = k => (PLATFORMS[k] ? `<img class="pl-logo" src="/logos/${PLATFORMS[k][1]}.png" alt="" width="24" height="24">` : '<span class="pl-logo other" aria-hidden="true">↗</span>');
 
 /* ---------- settings + theme ---------- */
-const settings = Object.assign({ quality: 'best', autoShare: true, theme: localStorage.getItem('theme') || 'system' }, store.get('settings', {}));
+const settings = Object.assign({ quality: 'best', autoShare: true, clip: false, theme: localStorage.getItem('theme') || 'system' }, store.get('settings', {}));
 const saveSettings = () => store.set('settings', settings);
 const darkMQ = matchMedia('(prefers-color-scheme: dark)');
 
@@ -776,6 +776,49 @@ $('installCta').addEventListener('click', install);
   $('footPolicy').addEventListener('click', openPolicy);
 })();
 
+/* ---------- copied-link assist: "Share → Copy link", then open Grab ---------- */
+let clipSeen = store.get('lastClip', '');
+let clipLink = '';
+async function checkClipboard() {
+  if (!isApp || !settings.clip || document.hidden || !document.hasFocus() || $('shareSheet').open) return;
+  let text;
+  try { text = await navigator.clipboard.readText(); } catch { return; }
+  const link = text.match(/https?:\/\/[^\s<>"']+/i)?.[0];
+  if (!link || link === clipSeen) return;
+  const k = platformKey('', link);
+  if (k === 'other') return;
+  clipSeen = link;
+  store.set('lastClip', link);
+  clipLink = link;
+  $('clipTitle').textContent = `${platformLabel(k)} link copied`;
+  $('clipSub').textContent = new URL(link).pathname.slice(0, 40);
+  $('clipBanner').hidden = false;
+}
+async function enableClip() {
+  try {
+    await navigator.clipboard.readText();
+    settings.clip = true;
+    saveSettings();
+    $('setClip').checked = true;
+    $('clipTip').hidden = true;
+    toast('Copied links will show up here');
+    checkClipboard();
+  } catch {
+    settings.clip = false;
+    saveSettings();
+    $('setClip').checked = false;
+    toast('Clipboard access was not allowed');
+  }
+}
+$('setClip').checked = settings.clip;
+$('setClip').addEventListener('change', e => { if (e.target.checked) enableClip(); else { settings.clip = false; saveSettings(); } });
+$('clipOn').addEventListener('click', enableClip);
+$('clipTipX').addEventListener('click', () => { $('clipTip').hidden = true; store.set('clipTipHidden', true); });
+$('clipX').addEventListener('click', () => { $('clipBanner').hidden = true; });
+$('clipSave').addEventListener('click', () => { $('clipBanner').hidden = true; if (clipLink) runShare(clipLink); });
+addEventListener('focus', checkClipboard);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(checkClipboard, 250); });
+
 /* ---------- share sheet: opened when a link is shared to Grab from another app ---------- */
 async function runShare(link) {
   const dlg = $('shareSheet');
@@ -840,6 +883,8 @@ $('shSaveNow').addEventListener('click', async () => { if (await retryPendingSav
   if (!isApp) return; // the website only needs the link box
   updateBadge();
   syncMeta();
+  $('clipTip').hidden = settings.clip || store.get('clipTipHidden', false);
+  setTimeout(checkClipboard, 600);
 
   if (shared) {
     runShare(shared);
