@@ -90,4 +90,4 @@ class handler(BaseHTTPRequestHandler):
                 "options": options,
             })
         except Exception as e:
-            self._send(422, {"error": friendly(str(e))})
+            self._send(422, {"error": friendly(str(e)), "detail": re.sub(r"\x1b\[[0-9;]*m", "", str(e))[:300]})
