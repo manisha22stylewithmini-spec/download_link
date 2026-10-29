@@ -1,5 +1,33 @@
 // Adds a "Grab" tile to Instagram's Share dialog, right next to "Copy link".
 (() => {
+  // Instagram only serves reels to logged-in browsers, so we ask Instagram ourselves, from the page, using the user's own session.
+  const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  const shortcodeOf = u => /\/(?:reel|reels|p|tv)\/([\w-]+)/.exec(u)?.[1];
+  const mediaId = sc => { let id = 0n; for (const ch of sc) id = id * 64n + BigInt(ALPHA.indexOf(ch)); return id.toString(); };
+
+  async function igInfo(url) {
+    const sc = shortcodeOf(url);
+    if (!sc) throw new Error('Open a reel or post first.');
+    const r = await fetch(`/api/v1/media/${mediaId(sc)}/info/`, {
+      credentials: 'include',
+      headers: { 'x-ig-app-id': '936619743392459', 'x-requested-with': 'XMLHttpRequest', accept: '*/*' },
+    });
+    if (r.status === 401 || r.status === 403) throw new Error('Log in to Instagram in this browser, then try again.');
+    if (!r.ok) throw new Error('Instagram would not share this post right now.');
+    const j = await r.json();
+    const it = j.items?.[0];
+    const best = (it?.video_versions || [])[0] || it?.carousel_media?.find(m => m.video_versions)?.video_versions?.[0];
+    if (!best?.url) throw new Error('This post has no video.');
+    const thumb = it.image_versions2?.candidates?.[0]?.url || '';
+    const title = (it.caption?.text || '').split('\n')[0].slice(0, 90) || `Instagram ${sc}`;
+    return { title, uploader: it.user?.username || '', thumbnail: thumb, url: best.url, ext: 'mp4', source: 'Instagram' };
+  }
+  chrome.runtime.onMessage.addListener((m, _s, reply) => {
+    if (m.type !== 'ig-info') return false;
+    igInfo(m.url || location.href).then(d => reply({ ok: true, data: d }), e => reply({ ok: false, error: e.message }));
+    return true;
+  });
+
   const ICON = chrome.runtime.getURL('icons/icon-48.png');
   const postUrl = () => {
     const here = location.href.split('?')[0];
@@ -34,7 +62,12 @@
     grab.addEventListener('click', async e => {
       e.preventDefault(); e.stopPropagation();
       if (text) text.textContent = 'Saving…';
-      const r = await chrome.runtime.sendMessage({ type: 'grab', url: postUrl() });
+      let r;
+      try {
+        const d = await igInfo(postUrl());
+        r = await chrome.runtime.sendMessage({ type: 'save', url: d.url, title: d.title, ext: d.ext });
+      } catch (err) { r = { ok: false, error: err.message }; }
+      if (!r?.ok && r?.error) chrome.runtime.sendMessage({ type: 'notice', title: "Couldn't grab that video", message: r.error });
       if (text) text.textContent = r?.ok ? 'Saved ✓' : 'Try again';
       setTimeout(() => text && (text.textContent = 'Grab'), 2500);
     }, true);

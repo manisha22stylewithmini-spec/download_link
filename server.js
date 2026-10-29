@@ -35,9 +35,12 @@ function validateUrl(raw) {
   return null;
 }
 
+// Optional: GRAB_COOKIES_BROWSER=chrome npm start  -> use that browser's login, so private/login-only posts (Instagram etc.) work on your own computer.
+const COOKIES = process.env.GRAB_COOKIES_BROWSER ? ['--cookies-from-browser', process.env.GRAB_COOKIES_BROWSER] : [];
+
 function run(args, { timeout = TIMEOUT_MS } = {}) {
   return new Promise((resolve, reject) => {
-    const p = spawn('yt-dlp', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    const p = spawn('yt-dlp', [...COOKIES, ...args], { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '', err = '';
     const t = setTimeout(() => p.kill('SIGKILL'), timeout);
     p.stdout.on('data', d => (out += d));

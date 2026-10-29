@@ -5,6 +5,7 @@ Adds **Grab** to Chrome so you can save a video in one click:
 - **Instagram:** a **Grab** tile appears in the Share dialog next to "Copy link".
 - **Any page** (Instagram, TikTok, X, Pinterest, YouTube…): click the Grab toolbar icon, or right-click → *Save video with Grab*, or press **Alt+G**.
 - The file is saved straight to `Downloads/Grab/`.
+- **Instagram uses your own login:** the extension asks Instagram from inside the page you're logged into, so reels that need a login still work. If it says to log in, open Instagram in this browser and sign in.
 
 ## Install (about 1 minute)
 1. Open `chrome://extensions` and turn on **Developer mode** (top right).

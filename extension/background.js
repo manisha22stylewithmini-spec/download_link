@@ -57,7 +57,17 @@ chrome.commands.onCommand.addListener(async c => {
   if (tab?.url) grabWithNotice(tab.url);
 });
 
+// Save a media file we already have the address of (used for Instagram, fetched with the user's own session).
+async function saveDirect({ url, title, ext }) {
+  const name = `Grab/${safe(title)}.${ext || 'mp4'}`;
+  const id = await chrome.downloads.download({ url, filename: name, conflictAction: 'uniquify' });
+  note('Saving with Grab', title || name);
+  return { ok: true, id, name };
+}
+
 chrome.runtime.onMessage.addListener((m, _s, reply) => {
+  if (m.type === 'save') { saveDirect(m).then(reply, e => reply({ ok: false, error: e.message })); return true; }
+  if (m.type === 'notice') { note(m.title, m.message); return false; }
   if (m.type === 'info') info(m.url).then(d => reply({ ok: true, data: d }), e => reply({ ok: false, error: e.message }));
   else if (m.type === 'grab') {
     (m.kind ? grab(m.url, m.kind).then(r => ({ ok: true, ...r }), e => ({ ok: false, error: e.message })) : grabWithNotice(m.url)).then(reply);
