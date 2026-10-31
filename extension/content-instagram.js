@@ -1,4 +1,4 @@
-// Adds a "Grab" tile to Instagram's Share dialog, right next to "Copy link".
+// Adds a "GrabLink" tile to Instagram's Share dialog, right next to "Copy link".
 (() => {
   // Instagram only serves reels to logged-in browsers, so we ask Instagram ourselves, from the page, using the user's own session.
   const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -50,7 +50,7 @@
     const grab = tile.cloneNode(true);
     grab.dataset.grab = '1';
     const text = [...grab.querySelectorAll('span, div')].find(e => !e.children.length && /^copy link$/i.test(e.textContent.trim()));
-    if (text) text.textContent = 'Grab';
+    if (text) text.textContent = 'GrabLink';
     const svg = grab.querySelector('svg');
     if (svg) {
       const img = new Image();
@@ -69,7 +69,7 @@
       } catch (err) { r = { ok: false, error: err.message }; }
       if (!r?.ok && r?.error) chrome.runtime.sendMessage({ type: 'notice', title: "Couldn't grab that video", message: r.error });
       if (text) text.textContent = r?.ok ? 'Saved ✓' : 'Try again';
-      setTimeout(() => text && (text.textContent = 'Grab'), 2500);
+      setTimeout(() => text && (text.textContent = 'GrabLink'), 2500);
     }, true);
     row.insertBefore(grab, tile);
   }

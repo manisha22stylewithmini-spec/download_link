@@ -47,7 +47,9 @@ const platformLabel = k => PLATFORMS[k]?.[0] || 'Other';
 const logo = k => (PLATFORMS[k] ? `<img class="pl-logo" src="/logos/${PLATFORMS[k][1]}.png" alt="" width="24" height="24">` : '<span class="pl-logo other" aria-hidden="true">↗</span>');
 
 /* ---------- settings + theme ---------- */
+const themeKey = isApp ? 'theme' : 'theme.web'; // the website keeps its own choice (light unless the visitor flips it)
 const settings = Object.assign({ quality: 'best', autoShare: true, clip: false, theme: localStorage.getItem('theme') || 'system' }, store.get('settings', {}));
+if (!isApp) settings.theme = localStorage.getItem(themeKey) || 'light';
 const saveSettings = () => store.set('settings', settings);
 const darkMQ = matchMedia('(prefers-color-scheme: dark)');
 
@@ -57,7 +59,7 @@ function applyTheme(mode) {
   const t = mode === 'system' ? (darkMQ.matches ? 'dark' : 'light') : mode;
   document.documentElement.dataset.theme = t;
   $('theme').setAttribute('aria-label', t === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-  try { mode === 'system' ? localStorage.removeItem('theme') : localStorage.setItem('theme', mode); } catch {}
+  try { mode === 'system' ? localStorage.removeItem(themeKey) : localStorage.setItem(themeKey, mode); } catch {}
   syncSeg();
 }
 darkMQ.addEventListener?.('change', () => settings.theme === 'system' && applyTheme('system'));
@@ -419,7 +421,7 @@ async function runSearch(q) {
     if (data.external.length) {
       html += data.items.length
         ? `<p class="hint">Also look on</p>`
-        : `<div class="notice"><b>${esc(platformLabel(searchPlatform))} keeps search inside its own app.</b> Open the results there, then share or paste a video link back into Grab.</div>`;
+        : `<div class="notice"><b>${esc(platformLabel(searchPlatform))} keeps search inside its own app.</b> Open the results there, then share or paste a video link back into GrabLink.</div>`;
       html += `<div class="exts">${externalHTML(data.external)}</div>`;
     }
     out.innerHTML = html || `<p class="hint">No results for “${esc(q)}”. Try another word.</p>`;
@@ -606,7 +608,7 @@ $('setNotify').addEventListener('change', e => setNotify(e.target.checked));
 
 $('testNotify').addEventListener('click', async () => {
   const reg = await navigator.serviceWorker?.ready;
-  reg?.showNotification('Grab is all set ✦', { body: 'You will hear from us when there are fresh picks for your niche.', icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', data: { url: '/#alerts' } });
+  reg?.showNotification('GrabLink is all set ✦', { body: 'You will hear from us when there are fresh picks for your niche.', icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', data: { url: '/#alerts' } });
 });
 
 // Chrome on Android can wake an installed app in the background to look for new picks.
@@ -715,13 +717,13 @@ function installSteps() {
   if (/iphone|ipad|ipod/i.test(ua)) return ['Tap the <b>Share</b> button in Safari.', 'Choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'];
   if (/android/i.test(ua)) return ['Open the browser menu <b>⋮</b>.', 'Tap <b>Install app</b> (or <b>Add to Home screen</b>).', 'Confirm.'];
   if (/safari/i.test(ua) && !/chrome|chromium|edg/i.test(ua)) return ['In the menu bar choose <b>File → Add to Dock</b>.'];
-  return ['Click the <b>install icon</b> at the right end of the address bar (or the <b>⋮</b> menu → <b>Install Grab</b>).', 'Confirm.'];
+  return ['Click the <b>install icon</b> at the right end of the address bar (or the <b>⋮</b> menu → <b>Install GrabLink</b>).', 'Confirm.'];
 }
 
 
 
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
-addEventListener('appinstalled', () => { installEvent = null; $('installHelp').hidden = true; toast('Installed! Open Grab from your home screen.'); });
+addEventListener('appinstalled', () => { installEvent = null; $('installHelp').hidden = true; toast('Installed! Open GrabLink from your home screen.'); });
 
 async function install() {
   if (installEvent) {
@@ -735,8 +737,8 @@ async function install() {
   $('installHelp').hidden = false;
   $('installHelp').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-$('install').addEventListener('click', install);
 $('installCta').addEventListener('click', install);
+$('signInstall').addEventListener('click', install);
 
 /* ---------- website: tap "& more" to see every supported platform ---------- */
 (function platformList() {
@@ -898,23 +900,6 @@ $('shSaveNow').addEventListener('click', async () => { if (await retryPendingSav
   maybeAlert(await loadForYou());
 })();
 
-/* ---------- website background video (the installed app has a plain background and never loads it) ---------- */
-(function bgVideo() {
-  if (isApp) return;
-  const v = document.createElement('video');
-  v.className = 'bg-video';
-  v.muted = v.loop = v.playsInline = true;
-  v.autoplay = true;
-  v.setAttribute('aria-hidden', 'true');
-  v.poster = '/media/bg.jpg';
-  v.innerHTML = '<source src="/media/bg.mp4" type="video/mp4">';
-  document.body.prepend(v);
-  const rm = matchMedia('(prefers-reduced-motion: reduce)');
-  const sync = () => (rm.matches ? v.pause() : v.play().catch(() => {}));
-  rm.addEventListener?.('change', sync);
-  sync();
-})();
-
 /* ---------- installed app on a laptop: open at a phone-style window size (once) ---------- */
 (function windowSize() {
   if (!isApp || !matchMedia('(display-mode: standalone)').matches || !matchMedia('(pointer: fine)').matches) return;
@@ -940,6 +925,14 @@ $('shSaveNow').addEventListener('click', async () => { if (await retryPendingSav
     const web = document.documentElement.classList.contains('is-web');
     const chrome = web ? (document.querySelector('.site-head')?.offsetHeight || 0) + (document.querySelector('.site-foot')?.offsetHeight || 0) + 72 : 80;
     scene.style.setProperty('--s', Math.max(.55, Math.min(1, (innerHeight - chrome) / 700)).toFixed(3));
+    // website: stretch the pole down until it rests on the footer (the top of the drawing stays where it is)
+    requestAnimationFrame(() => {
+      const foot = document.querySelector('.site-foot');
+      if (!web || !foot || !scene.offsetParent) return;
+      const s = parseFloat(getComputedStyle(scene).getPropertyValue('--s')) || 1;
+      const poleBottom = scene.getBoundingClientRect().top + 660 * s;
+      scene.style.setProperty('--pole-extra', Math.max(0, (foot.getBoundingClientRect().top - poleBottom) / s + 1).toFixed(1) + 'px');
+    });
   };
   addEventListener('resize', fit);
   fit();

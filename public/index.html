@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1b1033">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#150c2e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Paste or share a link from Pinterest, Dribbble, X, Instagram and more to download the video.">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" href="/icons/favicon-64.png">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Grab Video">
-<title>Grab Video</title>
+<meta name="apple-mobile-web-app-title" content="GrabLink">
+<title>GrabLink by Manisha Baroliya</title>
 <script>(function(){var d=document.documentElement,q=location.search;try{if(/[?&]mode=app\b/.test(q))sessionStorage.setItem("gv.mode","app");if(/[?&]mode=web\b/.test(q))sessionStorage.removeItem("gv.mode")}catch(e){}var app=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;try{app=app||sessionStorage.getItem("gv.mode")==="app"}catch(e){}d.classList.add(app?"is-app":"is-web")})();</script>
-<script>try{var t=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var ap=document.documentElement.classList.contains("is-app");var t=localStorage.getItem(ap?"theme":"theme.web")||(ap&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap">
@@ -25,7 +26,7 @@
 <div class="bg-grain web-only" aria-hidden="true"></div>
 
 <header class="site-head web-only">
-  <a class="site-brand" href="/" aria-label="Grab home"><img src="/icons/icon-192.png" alt="" width="34" height="34"><span>Grab</span></a>
+  <a class="site-brand" href="/" aria-label="Home"><img class="logo-wide logo-light" src="/brand/logo-wide.png" alt="Manisha Baroliya" width="587" height="302"><img class="logo-wide logo-dark" src="/brand/logo-wide-dark.png" alt="Manisha Baroliya" width="700" height="362"></a>
   <nav class="site-nav" aria-label="More from the maker">
     <div class="menu" id="projMenu">
       <button type="button" class="menu-btn" id="projBtn" aria-expanded="false" aria-controls="projList">
@@ -39,14 +40,16 @@
 
 <aside class="scene" id="scene" aria-label="Supported sites">
   <p class="sr-only">Works with Pinterest, Dribbble, X, Instagram, TikTok, YouTube, Facebook, LinkedIn, Snapchat and WhatsApp links.</p>
-  <div class="tl3" aria-hidden="true">
+  <div class="tl3">
     <div class="halo"></div>
     <div class="pole"></div>
-    <div class="sign">GRAB <b>IT</b></div>
+    <i class="clamp k1"></i><i class="clamp k2"></i>
+    <button class="sign" id="signInstall" type="button" aria-label="Download app"><i class="screw l" aria-hidden="true"></i>DOWNLOAD <b>APP</b><i class="screw r" aria-hidden="true"></i></button>
+    <div class="backplate"></div>
     <div class="housing" id="tlBox">
-      <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
-      <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
-      <div class="lamp3"><span class="visor"></span><span class="bulb"><img alt="" width="256" height="256"></span></div>
+      <div class="lamp3"><span class="bezel"></span><span class="bulb"><img alt="" width="256" height="256"></span><span class="visor"></span></div>
+      <div class="lamp3"><span class="bezel"></span><span class="bulb"><img alt="" width="256" height="256"></span><span class="visor"></span></div>
+      <div class="lamp3"><span class="bezel"></span><span class="bulb"><img alt="" width="256" height="256"></span><span class="visor"></span></div>
     </div>
     <div class="plate"><i class="live"></i><span class="plate-k">now grabbing</span><span id="tlName">Pinterest</span></div>
     <div class="base"></div>
@@ -61,14 +64,10 @@
 <div class="phone" id="app">
   <div class="phone-inner">
     <header class="top">
-      <div class="brand app-only"><img src="/icons/icon-192.png" alt="" width="32" height="32"><span>Grab</span></div>
+      <div class="brand app-only"><img class="logo-wide logo-light" src="/brand/logo-wide.png" alt="Manisha Baroliya" width="587" height="302"><img class="logo-wide logo-dark" src="/brand/logo-wide-dark.png" alt="Manisha Baroliya" width="700" height="362"></div>
       <button class="icon-btn" id="theme" type="button" aria-label="Switch to dark theme">
         <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
         <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
-      </button>
-      <button class="install web-only" id="install" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
-        Download app
       </button>
       <!-- Contact link comes from site-config.js -->
       <a class="icon-btn web-only" id="contact" href="#" target="_blank" rel="noopener" aria-label="Contact">
@@ -87,7 +86,7 @@
         <button class="mini-btn" type="button" id="clipX" aria-label="Dismiss">✕</button>
       </div>
       <div class="tip app-only" id="clipTip" hidden>
-        <span>Tip: in Instagram, TikTok or X tap <b>Share → Copy link</b>, then open Grab. It offers to save it right away.</span>
+        <span>Tip: in Instagram, TikTok or X tap <b>Share → Copy link</b>, then open GrabLink. It offers to save it right away.</span>
         <button class="link-btn" type="button" id="clipOn">Turn on</button>
         <button class="mini-btn" type="button" id="clipTipX" aria-label="Hide tip">✕</button>
       </div>
@@ -171,8 +170,8 @@
         <ul class="plat-grid" id="allPlatforms" hidden></ul>
 
         <div class="get-app">
-          <img src="/icons/icon-192.png" alt="" width="44" height="44">
-          <div><b>Get the full Grab app</b><span>Search, history &amp; share-to-download</span></div>
+          <img src="/icons/mark-128.png" alt="" width="44" height="44">
+          <div><b>Get the full GrabLink app</b><span>Search, history &amp; share-to-download</span></div>
           <button class="btn" id="installCta" type="button">Get app</button>
         </div>
       </div>
@@ -180,7 +179,7 @@
       <section id="installHelp" class="help" hidden>
         <h2 class="section">Add to your device</h2>
         <ol id="installSteps"></ol>
-        <p class="hint">After installing, <b>Grab</b> shows up in the Share menu of other apps (Android and Windows/ChromeOS Chrome). Share a video link to it and it downloads right away.</p>
+        <p class="hint">After installing, <b>GrabLink</b> shows up in the Share menu of other apps (Android and Windows/ChromeOS Chrome). Share a video link to it and it downloads right away.</p>
       </section>
 
       <p class="legal">Only download content you own or have permission to save. Private videos can't be downloaded.</p>
@@ -199,7 +198,7 @@
       </div>
       <ul class="hist" id="historyList"></ul>
       <div class="empty" id="historyEmpty" hidden>
-        <img src="/icons/icon-192.png" alt="" width="56" height="56">
+        <img src="/icons/mark-128.png" alt="" width="56" height="56">
         <b>Nothing here yet</b>
         <span>Videos you download will show up here, grouped by platform.</span>
         <button class="btn" type="button" data-goto="home">Grab a video</button>
@@ -222,11 +221,11 @@
           </div>
         </div>
         <label class="set-row">
-          <div><b>Detect copied links</b><span>When you come back to Grab, offer to save the link you just copied. Asks for clipboard access.</span></div>
+          <div><b>Detect copied links</b><span>When you come back to GrabLink, offer to save the link you just copied. Asks for clipboard access.</span></div>
           <span class="switch"><input type="checkbox" role="switch" id="setClip"><i></i></span>
         </label>
         <label class="set-row">
-          <div><b>Auto-download shared links</b><span>Start saving as soon as you share a link to Grab.</span></div>
+          <div><b>Auto-download shared links</b><span>Start saving as soon as you share a link to GrabLink.</span></div>
           <span class="switch"><input type="checkbox" role="switch" id="setAuto"><i></i></span>
         </label>
       </div>
@@ -261,7 +260,7 @@
           <b>TikTok, YouTube, Facebook &amp; more</b>
         </div>
       </div>
-      <p class="legal">Grab · version 1.1</p>
+      <p class="legal">GrabLink · version 1.1</p>
     </section>
 
     <!-- ================= ALERTS ================= -->
@@ -323,7 +322,7 @@
     <ul class="foot-social" id="socialList" aria-labelledby="connectTitle"></ul>
   </div>
   <div class="foot-meta">
-    <span>© <span id="year"></span> Grab</span>
+    <span>© <span id="year"></span> GrabLink</span>
     <button type="button" class="link-btn" id="footPolicy">Privacy</button>
   </div>
 </footer>
@@ -357,11 +356,11 @@
   <form method="dialog" class="sheet-inner">
     <span class="grabber" aria-hidden="true"></span>
     <h2 id="privacyTitle">Your data, your call</h2>
-    <p class="sub">Grab works without an account. Here's exactly what happens with your info.</p>
+    <p class="sub">GrabLink works without an account. Here's exactly what happens with your info.</p>
     <ul class="policy">
       <li><b>Stays on this device</b>Your download history, searches and settings live in this browser's storage. We don't keep a copy.</li>
       <li><b>Sent to fetch videos</b>Links and search words you enter go to our server only to find the video or results. Our host (Vercel) may keep standard request logs for a short time.</li>
-      <li><b>Personalized picks (optional)</b>If you allow it, Grab looks at your searches and downloads on this device to suggest topics in your niche.</li>
+      <li><b>Personalized picks (optional)</b>If you allow it, GrabLink looks at your searches and downloads on this device to suggest topics in your niche.</li>
       <li><b>Notifications (optional)</b>Only after you switch them on. Turn them off any time in Alerts or your browser settings.</li>
       <li><b>You're in control</b>Clear history and interests in Settings. Removing the app or clearing site data deletes everything.</li>
       <li><b>Respect creators</b>Only download videos you own or have permission to save.</li>

@@ -1,4 +1,4 @@
-# Grab — Chrome extension
+# GrabLink — Chrome extension
 
 Adds **Grab** to Chrome so you can save a video in one click:
 

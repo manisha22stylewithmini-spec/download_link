@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "Grab \u2014 video downloader",
-  "short_name": "Grab",
+  "name": "GrabLink by Manisha Baroliya",
+  "short_name": "GrabLink",
   "description": "Paste or share a link from Pinterest, Dribbble, X, Instagram and more to download the video.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1b1033",
-  "theme_color": "#1b1033",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -23,7 +23,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

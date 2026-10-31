@@ -1,4 +1,4 @@
-// Grab — background worker: finds the video for a page link and saves it with Chrome's own downloader.
+// GrabLink — background worker: finds the video for a page link and saves it with Chrome's own downloader.
 const DEFAULT_API = 'https://download-link-manisha22stylewithmini-specs-projects.vercel.app';
 const apiBase = async () => ((await chrome.storage.sync.get('api')).api || DEFAULT_API).replace(/\/$/, '');
 const safe = t => ((t || 'video').replace(/[^\w\- ]+/g, '').trim().slice(0, 80) || 'video');
@@ -9,7 +9,7 @@ async function info(url) {
     r = await fetch(`${await apiBase()}/api/info?url=${encodeURIComponent(url)}`);
     d = await r.json();
   } catch {
-    throw new Error("Couldn't reach Grab's server. It may still be set to private.");
+    throw new Error("Couldn't reach GrabLink's server. It may still be set to private.");
   }
   if (!r.ok) throw new Error(d.error || 'No video found at that link.');
   if (!d.options?.length) throw new Error('No downloadable video was found at that link.');
@@ -29,7 +29,7 @@ function choose(data, kind) {
 async function grab(url, kind = 'video') {
   const data = await info(url);
   const o = choose(data, kind);
-  const name = `Grab/${safe(data.title)}.${o.ext || 'mp4'}`;
+  const name = `GrabLink/${safe(data.title)}.${o.ext || 'mp4'}`;
   const id = await chrome.downloads.download({ url: o.url, filename: name, conflictAction: 'uniquify' });
   return { id, name, title: data.title };
 }
@@ -39,7 +39,7 @@ const note = (title, message) => chrome.notifications.create({ type: 'basic', ic
 async function grabWithNotice(url) {
   try {
     const r = await grab(url, 'video');
-    note('Saving with Grab', r.title);
+    note('Saving with GrabLink', r.title);
     return { ok: true, ...r };
   } catch (e) {
     note("Couldn't grab that video", e.message);
@@ -48,7 +48,7 @@ async function grabWithNotice(url) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({ id: 'grab', title: 'Save video with Grab', contexts: ['page', 'link', 'video'] });
+  chrome.contextMenus.create({ id: 'grab', title: 'Save video with GrabLink', contexts: ['page', 'link', 'video'] });
 });
 chrome.contextMenus.onClicked.addListener(i => { if (i.menuItemId === 'grab') grabWithNotice(i.linkUrl || i.pageUrl); });
 chrome.commands.onCommand.addListener(async c => {
@@ -59,9 +59,9 @@ chrome.commands.onCommand.addListener(async c => {
 
 // Save a media file we already have the address of (used for Instagram, fetched with the user's own session).
 async function saveDirect({ url, title, ext }) {
-  const name = `Grab/${safe(title)}.${ext || 'mp4'}`;
+  const name = `GrabLink/${safe(title)}.${ext || 'mp4'}`;
   const id = await chrome.downloads.download({ url, filename: name, conflictAction: 'uniquify' });
-  note('Saving with Grab', title || name);
+  note('Saving with GrabLink', title || name);
   return { ok: true, id, name };
 }
 

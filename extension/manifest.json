@@ -1,16 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "Grab — video downloader",
+  "name": "GrabLink by Manisha Baroliya",
   "version": "1.0.0",
-  "description": "Save the video from any Instagram, TikTok, X, Pinterest or YouTube page with one click. Adds Grab to Instagram's Share menu.",
+  "description": "Save the video from any Instagram, TikTok, X, Pinterest or YouTube page with one click. Adds GrabLink to Instagram's Share menu.",
   "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
   "permissions": ["activeTab", "downloads", "contextMenus", "notifications", "storage"],
   "host_permissions": ["https://download-link-manisha22stylewithmini-specs-projects.vercel.app/*"],
   "optional_host_permissions": ["https://*/*"],
   "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html", "default_title": "Save this video with Grab" },
+  "action": { "default_popup": "popup.html", "default_title": "Save this video with GrabLink" },
   "commands": {
-    "grab-page": { "suggested_key": { "default": "Alt+G", "mac": "Alt+G" }, "description": "Save the video on this page with Grab" }
+    "grab-page": { "suggested_key": { "default": "Alt+G", "mac": "Alt+G" }, "description": "Save the video on this page with GrabLink" }
   },
   "content_scripts": [
     { "matches": ["https://www.instagram.com/*"], "js": ["content-instagram.js"], "run_at": "document_idle" }
